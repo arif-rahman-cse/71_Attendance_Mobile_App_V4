@@ -1,9 +1,8 @@
 package com.ttv.facerecog;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -12,11 +11,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.hardware.Camera;
-import android.util.Log;
 
 import com.ttv.face.FaceEngine;
 import com.ttv.face.FaceFeatureInfo;
+import com.ttv.facerecog.ui.MainActivity;
 
 public class DBHelper extends SQLiteOpenHelper {
 

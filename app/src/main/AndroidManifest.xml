@@ -14,12 +14,21 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.TTVFaceRecog">
+        android:theme="@style/Theme.Main">
+
         <activity
-            android:name=".CameraActivity"
-            android:exported="true" />
+            android:name=".ui.employee.EmployeeListActivity"
+            android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.SupportActivity"
+            android:exported="false" />
+        
+        <activity
+            android:name=".ui.scan.CameraActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Secondary"/>
+        <activity
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,7 +37,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".UserActivity" android:exported="true"/>
+        <activity android:name=".ui.UserActivity" android:exported="true"/>
     </application>
 
 </manifest>

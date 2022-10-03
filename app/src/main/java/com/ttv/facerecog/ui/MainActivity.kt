@@ -1,34 +1,42 @@
-package com.ttv.facerecog
-
+package com.ttv.facerecog.ui
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Rect
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
-import com.ttv.face.*
-import com.ttv.imageutil.TTVImageFormat
-import com.ttv.imageutil.TTVImageUtil
-import com.ttv.imageutil.TTVImageUtilError
-import org.json.JSONObject
-import java.nio.ByteBuffer
-import java.util.ArrayList
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.databinding.DataBindingUtil
+import com.bumptech.glide.Glide
+import com.google.android.material.navigation.NavigationView
+import com.ttv.face.FaceEngine
+import com.ttv.face.FaceFeatureInfo
+import com.ttv.face.FaceResult
+import com.ttv.facerecog.*
+import com.ttv.facerecog.databinding.ActivityMainBinding
+import com.ttv.facerecog.ui.report.AttendanceSummary
+import com.ttv.facerecog.ui.report.DailyAttendanceStatus
+import com.ttv.facerecog.ui.report.SingleRangeAttendance
+import com.ttv.facerecog.ui.scan.CameraActivity
+import com.ttv.facerecog.utils.AppConfig
+import com.ttv.facerecog.utils.EmployeeFacePreference
+import com.ttv.facerecog.utils.UserCredentialPreference
+import java.text.MessageFormat
 
-class MainActivity : AppCompatActivity(){
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener{
     companion object {
         lateinit var userLists: ArrayList<FaceEntity>
+        private const val TAG = "MainActivity"
     }
-
+    private lateinit var binding: ActivityMainBinding
+    var userCredentialPreference: UserCredentialPreference? = null
+    var employeeFacePreference: EmployeeFacePreference? = null
     private var context: Context? = null
     private var mydb: DBHelper? = null
 
@@ -39,6 +47,16 @@ class MainActivity : AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        employeeFacePreference = EmployeeFacePreference.getPreferences(this)
+        userCredentialPreference = UserCredentialPreference.getPreferences(this)
+        //mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        binding.navigationDrawer.setNavigationItemSelectedListener(this)
+        binding.tvTotalScanCard.text =
+            MessageFormat.format(
+                "মোট স্ক্যান হয়েছে {0} জন",
+                userCredentialPreference!!.totalScan
+            )
 
         context = this
         FaceEngine.getInstance(this).setActivation("")
@@ -46,25 +64,43 @@ class MainActivity : AppCompatActivity(){
         mydb = DBHelper(this)
         mydb!!.getAllUsers()
 
-        val btnRegister = findViewById<Button>(R.id.btnRegister)
-        btnRegister.setOnClickListener {
+        //val btnRegister = findViewById<Button>(R.id.btnRegister)
+        binding.btnRegister.setOnClickListener {
             val intent = Intent()
             intent.setType("image/*")
             intent.setAction(Intent.ACTION_PICK)
             startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1)
         }
 
-        val btnVerify = findViewById<Button>(R.id.btnVerify)
-        btnVerify.setOnClickListener {
+        //val btnVerify = findViewById<Button>(R.id.btnVerify)
+        binding.cvScanCircle.setOnClickListener {
             val intent = Intent(this, CameraActivity::class.java)
             startActivityForResult(intent, 2)
         }
-        btnVerify.isEnabled = false;
+        binding.btnVerify.isEnabled = false;
 
-        val btnUsers = findViewById<Button>(R.id.btnUser)
-        btnUsers.setOnClickListener {
+        //val btnUsers = findViewById<Button>(R.id.btnUser)
+        binding.btnUser.setOnClickListener {
             val intent = Intent(this, UserActivity::class.java)
             startActivity(intent)
+        }
+
+        binding.drawerMenuBtn.setOnClickListener { v ->
+            val userName = findViewById<TextView>(R.id.tv_name)
+            val phone = findViewById<TextView>(R.id.tv_phone)
+            val profileImage =
+                findViewById<ImageView>(R.id.circleImageView)
+            userName.text = userCredentialPreference!!.name
+            phone.text = userCredentialPreference!!.userPhone
+            Log.d(TAG, "onCreate: URL: " + AppConfig.Base_URL_ONLINE_IMG + userCredentialPreference!!.profileUrl
+            )
+            Glide.with(this)
+                .load(AppConfig.Base_URL_ONLINE_IMG.toString() + "/media/" + userCredentialPreference!!.profileUrl)
+                .placeholder(R.drawable.loading_01)
+                .centerInside()
+                .error(R.drawable.default_profile_pic)
+                .into(profileImage)
+            binding.drawerLayout.openDrawer(GravityCompat.START)
         }
     }
 
@@ -75,6 +111,7 @@ class MainActivity : AppCompatActivity(){
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1 && resultCode == RESULT_OK) {
             try {
                 var bitmap: Bitmap = ImageRotator.getCorrectlyOrientedImage(this, data?.data!!)
@@ -83,8 +120,17 @@ class MainActivity : AppCompatActivity(){
                     FaceEngine.getInstance(this).extractFeature(bitmap, true, faceResults)
 
                     val userName = String.format("User%03d", userLists.size + 1)
-                    val cropRect = Utils.getBestRect(bitmap.width, bitmap.height, faceResults.get(0).rect)
-                    val headImg = Utils.crop(bitmap, cropRect.left, cropRect.top, cropRect.width(), cropRect.height(), 120, 120)
+                    val cropRect =
+                        Utils.getBestRect(bitmap.width, bitmap.height, faceResults.get(0).rect)
+                    val headImg = Utils.crop(
+                        bitmap,
+                        cropRect.left,
+                        cropRect.top,
+                        cropRect.width(),
+                        cropRect.height(),
+                        120,
+                        120
+                    )
 
                     val inputView = LayoutInflater.from(context)
                         .inflate(R.layout.dialog_input_view, null, false)
@@ -151,12 +197,60 @@ class MainActivity : AppCompatActivity(){
             }
         } else if(requestCode == 2 && resultCode == RESULT_OK) {
             val verifyResult = data!!.getIntExtra ("verifyResult", 0)
-            val recogName = data!!.getStringExtra ("verifyName")
+            val recogName = data.getStringExtra ("verifyName")
             if(verifyResult == 1) {
                 Toast.makeText(this, "Verify succeed! " + recogName, Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "Verify failed!", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+
+        if (id == R.id.log_out) {
+            logout()
+            return true
+        } else if (id == R.id.daily_attendance_report) {
+            val intent = Intent(this, DailyAttendanceStatus::class.java)
+            startActivity(intent)
+            return true
+        } else if (id == R.id.single_attendance_report) {
+            val intent = Intent(this, SingleRangeAttendance::class.java)
+            startActivity(intent)
+            return true
+        } else if (id == R.id.attendance_summery) {
+            val intent = Intent(this, AttendanceSummary::class.java)
+            startActivity(intent)
+            return true
+        } else if (id == R.id.support_number) {
+            val intent = Intent(this, SupportActivity::class.java)
+            startActivity(intent)
+            return true
+        } else if (id == R.id.id_add_new_face) {
+            closeDrawer()
+            val intent = Intent()
+            intent.type = "image/*"
+            intent.action = Intent.ACTION_PICK
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), 1)
+            //finish();
+            return true
+        } else if (id == R.id.sync_face) {
+            //closeDrawer();
+            //syncFace()
+            //finish();
+            return true
+        }
+
+        return false
+    }
+
+    private fun closeDrawer() {
+        binding.drawerLayout.closeDrawer(GravityCompat.START)
+    }
+
+    private fun logout() {
+        TODO("Not yet implemented")
     }
 }

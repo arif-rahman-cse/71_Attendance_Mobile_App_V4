@@ -1,13 +1,15 @@
-package com.ttv.facerecog
+package com.ttv.facerecog.ui
 
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.widget.ListView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.ttv.face.FaceEngine
+import com.ttv.facerecog.DBHelper
+import com.ttv.facerecog.R
+import com.ttv.facerecog.UsersAdapter
 
 
 class UserActivity : AppCompatActivity(){
@@ -33,7 +35,8 @@ class UserActivity : AppCompatActivity(){
                         0 -> {
 
                             mydb!!.deleteUser(MainActivity.userLists.get(i).userName)
-                            FaceEngine.getInstance(applicationContext).removeFaceFeature(MainActivity.userLists.get(i).user_id)
+                            FaceEngine.getInstance(applicationContext).removeFaceFeature(
+                                MainActivity.userLists.get(i).user_id)
                             MainActivity.userLists.removeAt(i)
 
                             adapter.notifyDataSetChanged()

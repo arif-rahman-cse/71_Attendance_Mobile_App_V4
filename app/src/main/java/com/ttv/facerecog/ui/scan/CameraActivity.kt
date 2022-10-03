@@ -1,33 +1,41 @@
-package com.ttv.facerecog
+package com.ttv.facerecog.ui.scan
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.Rect
-import android.icu.util.UniversalTimeScale.toLong
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.util.Log
 import android.util.Size
 import android.view.View
 import android.view.ViewGroup
-import com.ttv.face.*
-import com.ttv.face.enums.ExtractType
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.google.android.material.snackbar.Snackbar
+import com.ttv.face.FaceEngine
+import com.ttv.face.FaceFeature
+import com.ttv.face.FaceResult
+import com.ttv.face.SearchResult
+import com.ttv.facerecog.*
+import com.ttv.facerecog.databinding.ActivityCameraBinding
+import com.ttv.facerecog.ui.MainActivity
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.parameter.Resolution
 import io.fotoapparat.preview.Frame
 import io.fotoapparat.selector.front
-import io.fotoapparat.view.CameraView
 import io.fotoapparat.util.FrameProcessor
+import io.fotoapparat.view.CameraView
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.ExecutorService
 
 class CameraActivity : AppCompatActivity() {
+    private val TAG = "CameraActivity"
 
+    private lateinit var binding: ActivityCameraBinding
     private val permissionsDelegate = PermissionsDelegate(this)
     private var hasPermission = false
 
@@ -38,42 +46,78 @@ class CameraActivity : AppCompatActivity() {
     private var frontFotoapparat: Fotoapparat? = null
     private var startVerifyTime: Long = 0
     private var mydb: DBHelper? = null
-    private var recogName:String = ""
+    private var recogName: String = ""
 
-    private val mHandler: Handler = object : Handler() {
+
+    private val mHandler: Handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             val i: Int = msg.what
-            if (i == 0) {
-                var drawInfoList = ArrayList<FaceRectView.DrawInfo>();
-                var detectionResult = msg.obj as ArrayList<FaceResult>
+            //val j : Any = msg.obj
 
-                for(faceResult in detectionResult) {
-                    var rect : Rect = faceRectTransformer!!.adjustRect(faceResult.rect);
-                    var drawInfo : FaceRectView.DrawInfo;
-                    if(faceResult.liveness == 1)
+
+            if (i == 0) {
+                val drawInfoList = ArrayList<FaceRectView.DrawInfo>();
+                val detectionResult = msg.obj as ArrayList<FaceResult>
+
+                for (faceResult in detectionResult) {
+                    val rect: Rect = faceRectTransformer!!.adjustRect(faceResult.rect)
+                    var drawInfo: FaceRectView.DrawInfo
+
+                    if (faceResult.liveness == 1)
                         drawInfo = FaceRectView.DrawInfo(rect, 0, 0, 1, Color.GREEN, null);
                     else
                         drawInfo = FaceRectView.DrawInfo(rect, 0, 0, 0, Color.RED, null);
 
-                    drawInfoList.add(drawInfo);
+                    drawInfoList.add(drawInfo)
                 }
 
-                rectanglesView!!.clearFaceInfo();
-                rectanglesView!!.addFaceInfo(drawInfoList);
-            } else if(i == 1) {
-                var verifyResult = msg.obj as Int
-                val intent = Intent()
-                intent.putExtra("verifyResult", verifyResult);
-                intent.putExtra("verifyName", recogName)
-                setResult(RESULT_OK, intent)
-                finish()
+                rectanglesView!!.clearFaceInfo()
+                rectanglesView!!.addFaceInfo(drawInfoList)
+            } else if (i == 1) {
+                val verifyResult = msg.obj as Int
+//                val intent = Intent()
+//                intent.putExtra("verifyResult", verifyResult);
+//                intent.putExtra("verifyName", recogName)
+//                setResult(RESULT_OK, intent)
+//                finish()
+                if (verifyResult == 1) {
+                    binding.animationView.visibility = View.VISIBLE
+                    binding.status.text = "Face Match"
+                    binding.status.setTextColor(Color.GREEN)
+                    insertAttendance(recogName)
+
+
+
+                } else {
+                    binding.animationView.visibility = View.GONE
+                    binding.status.text = "Face Match Failed"
+                    binding.status.setTextColor(Color.RED)
+
+
+                }
             }
         }
     }
 
+    private fun insertAttendance(name: String) {
+        Log.d(TAG, "insertAttendance: Insert Attendance")
+       showConfirmation(name)
+
+    }
+
+    private fun showConfirmation(msg: String) {
+
+        val snackbar = Snackbar.make(binding.mainView, "$msg এর উপস্থিতি নিশ্চিত হয়েছে।", Snackbar.LENGTH_INDEFINITE)
+            .setAction("OK") { view: View? -> }
+        snackbar.show()
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_camera)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true);
 
         appCtx = applicationContext
         cameraView = findViewById<View>(R.id.camera_view) as CameraView
@@ -92,8 +136,13 @@ class CameraActivity : AppCompatActivity() {
             .into(cameraView!!)
             .lensPosition(front())
             .frameProcessor(SampleFrameProcessor())
-            .previewResolution { Resolution(1280,720) }
+            .previewResolution { Resolution(1280, 720) }
             .build()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
     }
 
     override fun onStart() {
@@ -126,20 +175,21 @@ class CameraActivity : AppCompatActivity() {
         }
     }
 
-    fun adjustPreview(frameWidth: Int, frameHeight: Int, rotation: Int) : Boolean{
-        if(faceRectTransformer == null) {
+    fun adjustPreview(frameWidth: Int, frameHeight: Int, rotation: Int): Boolean {
+        if (faceRectTransformer == null) {
             val frameSize: Size = Size(frameWidth, frameHeight);
-            if(cameraView!!.measuredWidth == 0)
+            if (cameraView!!.measuredWidth == 0)
                 return false;
 
-            adjustPreviewViewSize (cameraView!!, rectanglesView!!);
+            adjustPreviewViewSize(cameraView!!, rectanglesView!!);
 
-            faceRectTransformer = FaceRectTransformer (
+            faceRectTransformer = FaceRectTransformer(
                 frameSize.width, frameSize.height,
                 cameraView!!.getLayoutParams().width, cameraView!!.getLayoutParams().height,
                 rotation, 0, false,
                 false,
-                false);
+                false
+            );
 
             return true;
         }
@@ -186,10 +236,12 @@ class CameraActivity : AppCompatActivity() {
         }
 
         override fun invoke(frame: Frame) {
-            val faceResults:List<FaceResult> = FaceEngine.getInstance(appCtx).detectFace(frame.image, frame.size.width, frame.size.height)
-            if(faceResults.count() > 0) {
-                FaceEngine.getInstance(appCtx).livenessProcess(frame.image, frame.size.width, frame.size.height, faceResults)
-                if(frThreadQueue!!.remainingCapacity() > 0) {
+            val faceResults: List<FaceResult> = FaceEngine.getInstance(appCtx)
+                .detectFace(frame.image, frame.size.width, frame.size.height)
+            if (faceResults.count() > 0) {
+                FaceEngine.getInstance(appCtx)
+                    .livenessProcess(frame.image, frame.size.width, frame.size.height, faceResults)
+                if (frThreadQueue!!.remainingCapacity() > 0) {
                     frExecutor!!.execute(
                         FaceRecognizeRunnable(
                             frame.image,
@@ -200,13 +252,18 @@ class CameraActivity : AppCompatActivity() {
                     )
                 }
             }
-            if(adjustPreview(frame.size.width, frame.size.height, frame.rotation))
+            if (adjustPreview(frame.size.width, frame.size.height, frame.rotation))
                 sendMessage(0, faceResults)
 
         }
     }
 
-    inner class FaceRecognizeRunnable(nv21Data_: ByteArray, width_: Int, height_: Int, faceResults_:List<FaceResult>) : Runnable {
+    inner class FaceRecognizeRunnable(
+        nv21Data_: ByteArray,
+        width_: Int,
+        height_: Int,
+        faceResults_: List<FaceResult>
+    ) : Runnable {
         val nv21Data: ByteArray
         val width: Int
         val height: Int
@@ -220,28 +277,32 @@ class CameraActivity : AppCompatActivity() {
         }
 
         override fun run() {
-            if(startVerifyTime == 0.toLong())
+            if (startVerifyTime == 0.toLong())
                 startVerifyTime = System.currentTimeMillis()
 
             var exists = false
             try {
-                FaceEngine.getInstance(appCtx).extractFeature(nv21Data, width, height, false, faceResults)
-                val result: SearchResult = FaceEngine.getInstance(appCtx).searchFaceFeature(FaceFeature(faceResults.get(0).feature))
-                if(result.maxSimilar > 0.82f) {
-                    for(user in MainActivity.userLists) {
-                        if(user.user_id == result.faceFeatureInfo!!.searchId && faceResults.get(0).liveness == 1) {
+                FaceEngine.getInstance(appCtx)
+                    .extractFeature(nv21Data, width, height, false, faceResults)
+                val result: SearchResult = FaceEngine.getInstance(appCtx)
+                    .searchFaceFeature(FaceFeature(faceResults.get(0).feature))
+                if (result.maxSimilar > 0.8f) {
+                    for (user in MainActivity.userLists) {
+                        if (user.user_id == result.faceFeatureInfo!!.searchId && faceResults[0].liveness == 1) {
                             exists = true
                             recogName = user.userName
-                         }
+                        }
                     }
                 }
-            } catch (e:Exception){
+            } catch (e: Exception) {
             }
 
-            if(exists == true) {
+            if (exists == true) {
                 sendMessage(1, 1)   //success
+                Thread.sleep(3000)
+                //FaceRecognizeRunnable.postDelayed(this,1000)
             } else {
-                if(System.currentTimeMillis() - startVerifyTime > 3000) {
+                if (System.currentTimeMillis() - startVerifyTime > 3000) {
                     sendMessage(1, 0)   //fail
                 }
             }
