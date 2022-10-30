@@ -6,7 +6,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/light_white">
+        android:background="?attr/appWindowBackground">
 
         <LinearLayout
             android:id="@+id/main_view"
@@ -50,10 +50,10 @@
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/iv_emp_img_fixed"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
                 android:layout_gravity="center"
-                app:civ_border_color="@color/disable_color"
+                app:civ_border_color="@color/green"
                 app:civ_border_width="1dp" />
 
             <com.google.android.material.card.MaterialCardView
@@ -79,6 +79,14 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:layout_weight=".1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/separator"
+                            android:textStyle="bold" />
+
+
+                        <TextView
                             android:id="@+id/tv_card_id"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -101,6 +109,12 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/card_owner_title"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:layout_weight=".1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/separator"
                             android:textStyle="bold" />
 
                         <TextView
@@ -125,6 +139,12 @@
                             android:layout_weight="1"
                             android:text="@string/designation_title"
                             android:textStyle="bold" />
+                        <TextView
+                            android:layout_weight=".1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/separator"
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tv_designation"
@@ -148,6 +168,12 @@
                             android:layout_weight="1"
                             android:text="@string/word_no_title"
                             android:textStyle="bold" />
+                        <TextView
+                            android:layout_weight=".1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/separator"
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tv_word_no"
@@ -163,6 +189,7 @@
                         android:padding=".5dp" />
 
                     <TableRow
+                        android:id="@+id/row_mobile"
                         android:padding="12dp"
                         android:visibility="visible">
 
@@ -172,6 +199,12 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/phone"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:layout_weight=".1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/separator"
                             android:textStyle="bold" />
 
                         <TextView
@@ -183,74 +216,112 @@
 
                     </TableRow>
 
+                    <TableRow
+                        android:id="@+id/separator_mobile"
+                        android:background="@color/gray_soft"
+                        android:padding=".5dp" />
+
+                    <TableRow
+                        android:id="@+id/row_nid"
+                        android:padding="12dp"
+                        android:visibility="visible">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/nid"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:layout_weight=".1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/separator"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_nid"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            tools:text="01624390843" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/separator_nid"
+                        android:background="@color/gray_soft"
+                        android:padding=".5dp" />
+
+                    <TableRow
+                        android:id="@+id/row_blood_group"
+                        android:padding="12dp"
+                        android:visibility="visible">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/blood_group"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:layout_weight=".1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/separator"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_blood_group"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            tools:text="B+" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/separator_blood_group"
+                        android:background="@color/gray_soft"
+                        android:padding=".5dp" />
+
+                    <TableRow
+                        android:id="@+id/row_address"
+                        android:padding="12dp"
+                        android:visibility="visible">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_gravity="center"
+                            android:text="@string/address"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:layout_weight=".1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/separator"
+                            android:layout_gravity="center"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_address"
+                            android:layout_width="0dp"
+                            android:layout_gravity="center"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            tools:text="dhaka" />
+
+                    </TableRow>
+
+
                 </TableLayout>
 
 
             </com.google.android.material.card.MaterialCardView>
 
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:text="@string/img_verification_title"
-                android:textAlignment="center"
-                android:textColor="@color/red"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/outlet_image_upload_lo_01"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                app:cardCornerRadius="8dp"
-                app:cardUseCompatPadding="true">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:id="@+id/iv_employee_img"
-                        android:layout_width="match_parent"
-                        android:layout_height="150dp"
-                        android:layout_gravity="center"
-                        android:adjustViewBounds="true"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/worker_img" />
-
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:id="@+id/btn_upload_img"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:alpha=".6"
-                        android:src="@drawable/ic_add_photo" />
-
-                </RelativeLayout>
-
-
-            </com.google.android.material.card.MaterialCardView>
-
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_complete_scan"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="12dp"
-                android:backgroundTint="@color/red"
-                android:text="@string/btn_done" />
-
-
-            <ProgressBar
-                android:id="@+id/attendance_pb"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone" />
 
 
         </LinearLayout>

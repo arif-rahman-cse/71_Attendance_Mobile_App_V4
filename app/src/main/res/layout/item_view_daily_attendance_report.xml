@@ -31,6 +31,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.5"
                 android:textSize="12sp"
+                android:ellipsize="end"
+                android:maxLength="20"
                 tools:text="Arif Rahman" />
 
             <TextView

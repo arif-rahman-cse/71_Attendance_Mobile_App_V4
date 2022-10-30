@@ -6,8 +6,8 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/gray_soft"
-        tools:context=".ui.SupportActivity">
+        android:background="?attr/appWindowBackground"
+        tools:context="com.ekattorit.attendance.ui.SupportActivity">
 
         <include
             android:id="@+id/toolbar"
@@ -44,7 +44,7 @@
 
                     <TableRow
                         android:id="@+id/row_1"
-                        android:background="@color/green_light"
+                        android:background="?attr/itemBgColor"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?android:selectableItemBackground"
@@ -110,7 +110,7 @@
 
                     <TableRow
                         android:id="@+id/row_3"
-                        android:background="@color/green_light"
+                        android:background="?attr/itemBgColor"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?android:selectableItemBackground"

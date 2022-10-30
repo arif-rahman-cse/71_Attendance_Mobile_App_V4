@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.ttv.facerecog">
+    package="com.ekattorit.attendance">
 
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-feature android:name="android.hardware.camera"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
+    <uses-feature android:name="android.hardware.camera" />
+
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
@@ -14,22 +18,51 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/Theme.Main">
-
         <activity
-            android:name=".ui.employee.EmployeeListActivity"
+            android:name=".ui.employee.AddEmployeeFace"
+            android:exported="false" />
+        <activity
+            android:name=".ui.ScanPreviewActivity"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.employee.EmployeeListActivityV2"
+            android:exported="false" />
+        <activity
+            android:name=".ui.employee.EmployeeCardScanActivity"
             android:exported="false" />
         <activity
             android:name=".ui.SupportActivity"
             android:exported="false" />
-        
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.login.LoginActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.employee.OnlineEmployeeList"
+            android:exported="true" />
         <activity
             android:name=".ui.scan.CameraActivity"
             android:exported="true"
-            android:theme="@style/Theme.Secondary"/>
+            android:theme="@style/Theme.Secondary" />
         <activity
-            android:name=".ui.MainActivity"
-            android:exported="true">
+            android:name=".ui.report.DailyAttendanceStatus"
+            android:exported="true" />
+        <activity
+            android:name=".ui.report.AttendanceSummary"
+            android:exported="true" />
+        <activity
+            android:name=".ui.report.SingleRangeAttendance"
+            android:exported="true" />
+        <activity
+            android:name=".ui.ActivitySplashScreen"
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,7 +70,17 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.UserActivity" android:exported="true"/>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.ttv.facedemo.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
     </application>
 
 </manifest>

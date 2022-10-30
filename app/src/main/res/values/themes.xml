@@ -8,10 +8,39 @@
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/green_deep</item>
         <item name="colorSecondaryVariant">@color/teal_700</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+
+<!--        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>-->
         <!-- Customize your theme here. -->
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" >?attr/appToolbarBackground</item>
+        <!-- Customize your theme here. -->
+        <item name="appWindowBackground">@color/main_bg_light</item>
+        <item name="appToolbarBackground">@color/toolbar_bg_light</item>
+        <item name="itemBgColor">@color/item_bg_light</item>
+        <item name="iconColor">@color/red</item>
+
+<!--        <item name="itemBgColorSecondary">@color/item_bg</item>-->
+<!--        <item name="itemBgColorTernary">@color/toolbar_bg</item>-->
+<!--        <item name="itemBgColorQuaternary">@color/toolbar_bg</item>-->
+
+<!--        <item name="textColor">@android:color/tab_indicator_text</item>-->
+<!--        <item name="textColorSecondary">@color/toolbar_bg</item>-->
+
+<!--        <item name="iconColorSecondary">@color/white</item>-->
+
+<!--        <item name="buttonBackground">@color/toolbar_bg</item>-->
+<!--        <item name="buttonTextColor">@color/white</item>-->
+
+<!--        <item name="circlePrimary">@color/toolbar_bg</item>-->
+<!--        <item name="circleSecondary">@color/toolbar_bg</item>-->
+
+<!--        <item name="dividerColor">@color/toolbar_bg</item>-->
+
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+
     </style>
 
     <!-- Base application theme. -->

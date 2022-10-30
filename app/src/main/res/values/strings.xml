@@ -31,6 +31,7 @@
     <string name="recent_scan_history">রিসেন্ট স্ক্যান হিস্ট্রি </string>
     <string name="no_scan_history">কোনো স্ক্যান হিস্ট্রি খুঁজে পাওয়া যায়নি!</string>
     <string name="no_data_found">ডাটা পাওয়া যায়নি !</string>
+    <string name="no_face_attached">কোনো ফেইস যুক্ত নেই !</string>
     <string name="something_went_wrong">কিছু একটা সমস্যা হয়েছে !</string>
     <string name="scan_result_title">স্ক্যান ফলাফল</string>
     <string name="img_verification_title">এমপ্লয়ী ভেরিফিকেশন এর জন্য ছবি তুলুন </string>
@@ -46,6 +47,8 @@
     <string name="designation_title">উপাধি</string>
     <string name="word_no_title">ওয়ার্ড নং</string>
     <string name="phone">মোবাইল</string>
+    <string name="nid">এনআইডি</string>
+    <string name="blood_group">রক্তের গ্রুপ</string>
     <string name="btn_done">সম্পন্ন করুন</string>
     <string name="scan_again">আবার স্ক্যান করুন</string>
     <string name="phone_number">মোবাইল নাম্বার</string>
@@ -56,19 +59,31 @@
     <string name="log_out">লগ আউট</string>
 
     <!-- Report String -->
-    <string name="daily_attendance_status">ডেইলি অ্যাটেনডেন্স স্ট্যাটাস</string>
-    <string name="single_employee_attendance_status"> একক এমপ্লয়ী অ্যাটেনডেন্স</string>
-    <string name="attendance_summary">অ্যাটেনডেন্স সামারি </string>
-    <string name="show_report">show</string>
-    <string name="download_report">download</string>
+    <string name="daily_attendance_status">দৈনিক হাজিরা</string>
+    <string name="single_employee_attendance_status"> একক কর্মীর হাজিরা</string>
+    <string name="attendance_summary">মাসিক হাজিরা</string>
+    <string name="show_report">দেখুন </string>
+    <string name="download_report">ডাউনলোড</string>
     <string name="select_shift_or_word"> শিফট অথবা ওয়ার্ড বাছাই করুন  </string>
-    <string name="version_code">Version: v2.4.1_beta2</string>
+    <string name="employee_id">কর্মী আইডি</string>
+    <string name="employee_name">কর্মী নাম</string>
+    <string name="status">স্টেটাস</string>
+
+    <string name="total_employee">মোট কর্মী: %1$d</string>
+    <string name="present">উপস্থিত: %1$d</string>
+    <string name="absent">অনুপস্থিত: %1$d</string>
+
+    <string name="present_tile">উপস্থিত</string>
+    <string name="absent_tile">অনুপস্থিত</string>
+
 
     <!--Face Recognition String -->
     <string name="add_face">ফেইস যুক্ত করুন </string>
+    <string name="worker_list">কর্মী তাকলিকা</string>
     <string name="remove_face">ফেইস রিমুভ করুন </string>
-    <string name="save_face"> যুক্ত করুন </string>
+    <string name="save_face"> সংরক্ষণ করুন  </string>
     <string name="employee_list">কর্মী তালিকা</string>
+    <string name="employee_database">কর্মী ডাটাবেস</string>
     <string name="live_face_verification">লাইভ ফেইস ভেরিফিকেশন</string>
     <string name="select_face_area">মুখ নির্বাচন করুন</string>
 
@@ -76,6 +91,15 @@
     <string name="liveness_detection">Liveness Detection</string>
     <string name="match_percent">match percent</string>
     <string name="face_default_value">"{}"</string>
+    <string name="separator">: </string>
+
+
+    <string name="version_code">Version: v2.4.2</string>
+    <string name="in_time">প্রবেশ সময়</string>
+    <string name="out_time">প্রস্থান সময়</string>
+    <string name="in">প্রবেশ</string>
+    <string name="out">প্রস্থান</string>
+    <string name="search">অনুসন্ধান...</string>
 
 
 </resources>

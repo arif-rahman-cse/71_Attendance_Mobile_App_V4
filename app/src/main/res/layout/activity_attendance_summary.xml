@@ -7,7 +7,7 @@
         android:id="@+id/main_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.report.SingleRangeAttendance">
+        tools:context="com.ekattorit.attendance.ui.report.SingleRangeAttendance">
 
         <include
             android:id="@+id/toolbar"
@@ -47,7 +47,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/end_date"
-
             app:layout_constraintEnd_toEndOf="@+id/tv_end_date"
             app:layout_constraintStart_toStartOf="@+id/tv_end_date"
             app:layout_constraintTop_toBottomOf="@id/toolbar" />
@@ -76,22 +75,10 @@
             android:layout_marginTop="6dp"
             android:text="@string/show_report"
             android:textAllCaps="false"
+            app:cornerRadius="32dp"
             app:icon="@drawable/ic_eye"
-            app:layout_constraintEnd_toStartOf="@+id/btn_generate_pdf"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_start_date" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_generate_pdf"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:backgroundTint="@color/yellow"
-            android:text="@string/download_report"
-            android:textAllCaps="false"
-            app:icon="@drawable/ic_download"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/btn_view_report"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_start_date" />
 
 
@@ -99,11 +86,9 @@
             android:id="@+id/item_title_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:background="@color/light_gray"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/btn_generate_pdf">
+            android:padding="8dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/btn_view_report">
 
 
             <TextView
@@ -111,7 +96,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1.5"
-                android:text="Emp ID"
+                android:text="@string/employee_id"
                 android:textAlignment="center"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -122,20 +107,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="Emp Name"
-                android:textAlignment="center"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight=".7"
-                android:gravity="center"
-                android:text="Present"
+                android:text="@string/employee_name"
                 android:textAlignment="center"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -147,7 +119,19 @@
                 android:layout_gravity="center"
                 android:layout_weight=".7"
                 android:gravity="center"
-                android:text="Absent"
+                android:text="@string/present_tile"
+                android:textAlignment="center"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight=".7"
+                android:gravity="center"
+                android:text="@string/absent_tile"
                 android:textAlignment="center"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -159,6 +143,7 @@
             android:id="@+id/rv_single_attendance"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:padding="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/item_title_bar"
             tools:listitem="@layout/item_view_summary_attendance" />
@@ -177,7 +162,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btn_generate_pdf" />
+            app:layout_constraintTop_toBottomOf="@+id/btn_view_report" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

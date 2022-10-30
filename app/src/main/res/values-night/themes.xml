@@ -3,15 +3,45 @@
     <style name="Theme.Main" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/green</item>
-        <item name="colorPrimaryVariant">@color/green_deep</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimaryVariant">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/green_deep</item>
         <item name="colorSecondaryVariant">@color/teal_200</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorOnSecondary">@color/white</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+<!--        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>-->
         <!-- Customize your theme here. -->
+
+        <item name="android:statusBarColor" >?attr/appToolbarBackground</item>
+        <!-- Customize your theme here. -->
+        <item name="appWindowBackground">@color/main_bg_dark</item>
+        <item name="appToolbarBackground">@color/toolbar_bg_dark</item>
+
+        <item name="itemBgColor">@color/item_bg_dark</item>
+
+
+<!--        <item name="itemBgColorSecondary">@color/item_bg</item>-->
+<!--        <item name="itemBgColorTernary">@color/toolbar_bg</item>-->
+<!--        <item name="itemBgColorQuaternary">@color/toolbar_bg</item>-->
+
+<!--        <item name="textColor">@android:color/tab_indicator_text</item>-->
+<!--        <item name="textColorSecondary">@color/toolbar_bg</item>-->
+
+<!--        <item name="iconColor">@color/toolbar_bg</item>-->
+<!--        <item name="iconColorSecondary">@color/white</item>-->
+
+<!--        <item name="buttonBackground">@color/toolbar_bg</item>-->
+<!--        <item name="buttonTextColor">@color/white</item>-->
+
+<!--        <item name="circlePrimary">@color/toolbar_bg</item>-->
+<!--        <item name="circleSecondary">@color/toolbar_bg</item>-->
+
+<!--        <item name="dividerColor">@color/toolbar_bg</item>-->
+
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+
     </style>
 
     <style name="Theme.Secondary" parent="Theme.MaterialComponents.DayNight.DarkActionBar">

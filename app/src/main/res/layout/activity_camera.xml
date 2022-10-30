@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:id="@+id/main_view"
     android:layout_height="match_parent"
-    tools:context=".ui.scan.CameraActivity">
+    tools:context="com.ekattorit.attendance.ui.scan.CameraActivity">
 
     <FrameLayout
         android:id="@+id/cameraOverlayLayout"
@@ -26,7 +26,7 @@
             android:visibility="gone"
             tools:visibility="visible" >
 
-            <com.ttv.facerecog.FaceRectView
+            <com.ekattorit.attendance.FaceRectView
                 android:id="@+id/rectanglesView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>

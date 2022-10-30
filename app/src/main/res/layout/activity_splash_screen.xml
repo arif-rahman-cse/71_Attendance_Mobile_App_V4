@@ -24,9 +24,8 @@
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="?actionBarSize"
             android:gravity="center"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintBottom_toTopOf="@+id/developed_by">
 
             <TextView
                 android:id="@+id/ekattor"
@@ -47,6 +46,39 @@
                 android:text="@string/app_name_title2"
                 android:textColor="@color/green_deep"
                 android:textSize="22sp" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/developed_by"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginBottom="24dp"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/footer_item_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Developed by " />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EKATTOR"
+                android:textColor="@color/red"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" iT"
+                android:textColor="@color/green_deep"
+                android:textStyle="bold" />
 
 
         </LinearLayout>
