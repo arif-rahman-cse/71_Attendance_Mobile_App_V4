@@ -91,7 +91,7 @@ class EmployeeListActivityV2 : AppCompatActivity(), OfflineEmployeeListAdapter.O
 
                 val intent = Intent(this, EmployeeCardScanActivity::class.java)
                 intent.putExtra(AppConfig.IS_FROM_ADD_FACE, true)
-                finish()
+                //finish()
                 startActivity(intent)
 
 

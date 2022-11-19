@@ -26,6 +26,7 @@ import com.ekattorit.attendance.R
 import com.ekattorit.attendance.Utils
 import com.ekattorit.attendance.databinding.ActivityAddEmployeeFaceBinding
 import com.ekattorit.attendance.retrofit.RetrofitClient
+import com.ekattorit.attendance.ui.MainActivity
 import com.ekattorit.attendance.ui.MainActivity.Companion.userLists
 import com.ekattorit.attendance.ui.employee.modle.RpNewFace
 import com.ekattorit.attendance.utils.AppConfig
@@ -33,9 +34,7 @@ import com.ekattorit.attendance.utils.AppProgressBar
 import com.ekattorit.attendance.utils.ImageResizer
 import com.ekattorit.attendance.utils.UserCredentialPreference
 import com.google.android.material.snackbar.Snackbar
-import com.ttv.face.FaceEngine
-import com.ttv.face.FaceFeatureInfo
-import com.ttv.face.FaceResult
+import com.ttv.face.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -95,8 +94,37 @@ class AddEmployeeFace : AppCompatActivity() {
             val faceResults: MutableList<FaceResult> = FaceEngine.getInstance(this).detectFace(bitmap)
             //val detectResult: List<FaceResult> = FaceEngine.getInstance(this).extractFeature(bitmap, isRegister, faceResults)
             if (faceResults.count() == 1) {
+                var faceAlreadyExists = false
+                var idAlreadyExists = false
+                var username = ""
                 FaceEngine.getInstance(this).extractFeature(bitmap, true, faceResults)
                 //val result: SearchResult = FaceEngine.getInstance(this).searchFaceFeature(FaceFeature(faceResults[0].feature))
+                if (userLists.isEmpty()){
+                    for (user in userLists) {
+                        if (TextUtils.equals(user.employeeId, empId)) {
+                            idAlreadyExists = true
+                            break
+                        }
+                    }
+
+                }else{
+                    val result: SearchResult = FaceEngine.getInstance(context).searchFaceFeature(FaceFeature(faceResults[0].feature))
+                    if (result.maxSimilar > 0.8f) {
+                        for (user in userLists) {
+                            if (user.user_id == result.faceFeatureInfo!!.searchId) {
+                                faceAlreadyExists = true
+                                username = user.userName
+                                break
+                            }
+                            if (TextUtils.equals(user.employeeId, empId)) {
+                                idAlreadyExists = true
+                                break
+                            }
+                        }
+                    }
+                }
+
+
                 val cropRect = Utils.getBestRect(bitmap!!.width, bitmap!!.height, faceResults[0].rect)
                 val headImg = Utils.crop(
                     bitmap,
@@ -107,23 +135,23 @@ class AddEmployeeFace : AppCompatActivity() {
                     120,
                     120
                 )
-                var exists = false
+                /*
                 for (user in userLists) {
                     if (TextUtils.equals(user.employeeId, empId)) {
-                        exists = true
+                        idAlreadyExists = true
                         break
                     }
                 }
 
-                if (exists) {
+                 */
+                if (faceAlreadyExists){
+                    showMessageIdAlreadyRegister("ইতিমধ্যে $username এর ফেইস যুক্ত আছে ।")
+                }
+                else if (idAlreadyExists) {
                     showMessageIdAlreadyRegister("ইতিমধ্যে এই কর্মীর আইডি যুক্ত আছে ।")
 
-                }
-//
-                else {
-
+                }else {
                     //findViewById<Button>(R.id.btnVerify).isEnabled = MainActivity.userLists.size > 0
-
                     addNewFace(empId, empName, headImg, faceResults[0].feature, userCredentialPreference!!.userId)
                 }
 

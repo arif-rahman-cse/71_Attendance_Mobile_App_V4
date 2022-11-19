@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -19,13 +18,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import coil.ImageLoader
-import coil.load
-import coil.request.SuccessResult
-import com.android.volley.toolbox.ImageRequest
 import com.bumptech.glide.Glide
 import com.ekattorit.attendance.*
 import com.ekattorit.attendance.databinding.ActivityMainBinding
@@ -44,13 +38,11 @@ import com.ekattorit.attendance.ui.report.SingleRangeAttendance
 import com.ekattorit.attendance.ui.scan.CameraActivity
 import com.ekattorit.attendance.utils.AppConfig
 import com.ekattorit.attendance.utils.AppProgressBar
-import com.ekattorit.attendance.utils.EmployeeFacePreference
 import com.ekattorit.attendance.utils.UserCredentialPreference
 import com.google.android.material.navigation.NavigationView
 import com.ttv.face.FaceEngine
 import com.ttv.face.FaceFeatureInfo
 import com.ttv.face.FaceResult
-import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -355,6 +347,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.sync_face -> {
                 closeDrawer()
+                mydb!!.deleteAllUser()
+                mydb!!.getAllUsers()
+                Log.d(TAG, "onNavigationItemSelected: Local User Size: ${userLists.size}")
                 AppProgressBar.messageProgressFixed(context, "সার্ভার থেকে ফেস সিঙ্ক হচ্ছে... কিছু সময় লাগতে পারে। অনুগ্রহ করে অ্যাপ বন্ধ করবেন না।")
                 syncFaceWithServer()
 
@@ -380,11 +375,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     Log.d(TAG, "onResponse: Success")
                     if (response.body()!!.size > 0) {
                         Log.d(TAG, "onResponse: Face Size: "+response.body()!!.size )
+                        val size = response.body()!!.size
                         for (item in response.body()!!) {
-                            insertFaceInLocalDB(item)
+                            insertFaceInLocalDB(item, size)
+                            Log.d(TAG, "onResponse: Item: ${item!!.empId}")
                             
                         }
-                        AppProgressBar.hideMessageProgress()
+                        Log.d(TAG, "onResponse: Iteration done")
+                        //AppProgressBar.hideMessageProgress()
                     }else{
                         AppProgressBar.hideMessageProgress()
                     }
@@ -401,7 +399,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
 
-    private fun insertFaceInLocalDB(item: RpItemFace?) {
+    private fun insertFaceInLocalDB(item: RpItemFace?, size: Int) {
 
         try {
             Log.d(TAG, "onResponse: syncing...")
@@ -441,11 +439,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             val faceFeatureInfo = FaceFeatureInfo(user_id, faceResults[0].feature)
                             FaceEngine.getInstance(context).registerFaceFeature(faceFeatureInfo)
                             //Log.d(TAG, "insertFaceInLocalDB: Success!!")
+                            Log.d(TAG, "insertFaceInLocalDB: Size Local: ${userLists.size} And Size Server: $size")
+
+                            if (userLists.size >= size){
+                                AppProgressBar.hideMessageProgress()
+                                AppProgressBar.userActionSuccessPb(context, "ফেইস সিঙ্ক সফল হয়েছে !")
+                            }
 
 
                         } else {
                             Log.d(TAG, "insertFaceInLocalDB: No Face Detect!!")
-                            Toast.makeText(context, "No Face Detect for employee $item!!.empName", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "No Face Detect for employee "+item.empName, Toast.LENGTH_SHORT).show()
+                            AppProgressBar.hideMessageProgress()
                         }
                     }
                 }
@@ -453,6 +458,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         } catch (e: java.lang.Exception) {
             //handle exception
+            AppProgressBar.hideMessageProgress()
             Log.d(TAG, "insertFaceInLocalDB: ${e.message}")
             Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
             e.printStackTrace()

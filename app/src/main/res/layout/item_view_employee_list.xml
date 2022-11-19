@@ -29,6 +29,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            android:gravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/iv_emp_img"
             android:orientation="vertical">
@@ -40,9 +41,6 @@
                 android:layout_height="wrap_content"
                 android:textSize="13sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/iv_emp_img"
-                app:layout_constraintTop_toTopOf="parent"
                 tools:text="S M ARIFUR RAHMAN" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -50,9 +48,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/iv_emp_img"
-                app:layout_constraintTop_toBottomOf="@+id/tv_emp_name"
                 tools:text="DNCC-MI-01-00001" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -62,36 +57,34 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:textSize="12sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@id/tv_emp_name"
-                app:layout_constraintTop_toBottomOf="@id/tv_emp_id"
                 tools:text="Shyamoli Mohammadpur Dhaka" />
 
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="8dp"
-                android:background="@color/green_light"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/tv_emp_address"
-                app:layout_constraintTop_toBottomOf="@+id/tv_emp_address" />
-
-
-
-
         </LinearLayout>
+
+
+        <View
+            android:id="@+id/view_separator"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="60dp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@color/green_light"
+            app:layout_constraintEnd_toStartOf="@+id/iv_delete"
+            app:layout_constraintTop_toBottomOf="@+id/employee_info_lo" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/iv_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="12dp"
+            android:padding="8dp"
             android:visibility="gone"
             android:background="@drawable/bg_circle_with_stroke"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:srcCompat="@drawable/ic_delete" />
 
 
