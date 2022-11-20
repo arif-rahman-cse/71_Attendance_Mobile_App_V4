@@ -132,8 +132,8 @@ public class LoginActivity extends AppCompatActivity {
 
                     userCredentialPreference.setProfileUrl(rpLogin.getProfile().getImage());
                     userCredentialPreference.setUserType(rpLogin.getProfile().getUsersType());
-                    userCredentialPreference.setSuperVisorLatitude(String.valueOf(rpLogin.getProfile().getSupervisorLatitude()));
-                    userCredentialPreference.setSuperVisorLongitude(String.valueOf(rpLogin.getProfile().getSupervisorLongitude()));
+                    userCredentialPreference.setSuperVisorLatitude(rpLogin.getProfile().getSupervisorLatitude());
+                    userCredentialPreference.setSuperVisorLongitude(rpLogin.getProfile().getSupervisorLongitude());
                     userCredentialPreference.setSuperVisorRange(rpLogin.getProfile().getRange());
                     userCredentialPreference.setSuperVisorWard(String.valueOf(rpLogin.getProfile().getSupervisorWard()));
                     userCredentialPreference.setIsFaceRemovePermission(rpLogin.getProfile().isFaceDeletePermission());

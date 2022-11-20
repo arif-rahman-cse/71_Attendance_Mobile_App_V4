@@ -62,7 +62,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="01759506823"
+                            android:text=""
                             android:textStyle="bold" />
 
                         <androidx.appcompat.widget.AppCompatImageView
@@ -95,7 +95,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="+88 028899608"
+                            android:text=""
                             android:textStyle="bold" />
 
                         <androidx.appcompat.widget.AppCompatImageView
@@ -130,7 +130,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="01894085802"
+                            android:text=""
                             android:textStyle="bold" />
 
                         <androidx.appcompat.widget.AppCompatImageView

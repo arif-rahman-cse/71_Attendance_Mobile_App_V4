@@ -152,6 +152,7 @@ public class EmployeeCardScanActivity extends AppCompatActivity {
                         RpEmpDetails empDetails = response.body();
                         Intent scanIntent;
                         if (getIntent().getBooleanExtra(AppConfig.IS_FROM_ADD_FACE, false)) {
+
                             scanIntent = new Intent(EmployeeCardScanActivity.this, AddEmployeeFace.class);
                         } else {
                             scanIntent = new Intent(EmployeeCardScanActivity.this, ScanPreviewActivity.class);
@@ -168,7 +169,6 @@ public class EmployeeCardScanActivity extends AppCompatActivity {
                         scanIntent.putExtra(AppConfig.ADDRESS, empDetails.getAddress());
                         finish();
                         startActivity(scanIntent);
-
 
 
                     }
@@ -189,7 +189,12 @@ public class EmployeeCardScanActivity extends AppCompatActivity {
                                 .setConfirmText("ঠিক আছে ")
                                 .setConfirmClickListener(sDialog -> {
                                     sDialog.dismissWithAnimation();
-                                    Intent intent = new Intent(EmployeeCardScanActivity.this, MainActivity.class);
+                                    Intent intent;
+                                    if (getIntent().getBooleanExtra(AppConfig.IS_FROM_ADD_FACE, false)) {
+                                        intent = new Intent(EmployeeCardScanActivity.this, EmployeeListActivityV2.class);
+                                    } else {
+                                        intent = new Intent(EmployeeCardScanActivity.this, MainActivity.class);
+                                    }
                                     startActivity(intent);
                                     finish();
                                 })
@@ -258,7 +263,20 @@ public class EmployeeCardScanActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+
+
+        if (getIntent().getBooleanExtra(AppConfig.IS_FROM_ADD_FACE, false)) {
+            Intent intent = new Intent(this, EmployeeListActivityV2.class);
+            startActivity(intent);
+            finish();
+
+        } else {
+            Intent intent2 = new Intent(this, MainActivity.class);
+            startActivity(intent2);
+            finish();
+
+        }
     }
+
+
 }

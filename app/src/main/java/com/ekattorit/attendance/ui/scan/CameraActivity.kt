@@ -20,6 +20,7 @@ import com.ekattorit.attendance.databinding.ActivityCameraBinding
 import com.ekattorit.attendance.retrofit.RetrofitClient
 import com.ekattorit.attendance.ui.MainActivity
 import com.ekattorit.attendance.ui.scan.model.RpNewScan2
+import com.ekattorit.attendance.utils.AppConfig.*
 import com.ekattorit.attendance.utils.UserCredentialPreference
 import com.google.android.material.snackbar.Snackbar
 import com.ttv.face.FaceEngine
@@ -30,7 +31,6 @@ import io.fotoapparat.Fotoapparat
 import io.fotoapparat.parameter.Resolution
 import io.fotoapparat.preview.Frame
 import io.fotoapparat.selector.back
-import io.fotoapparat.selector.front
 import io.fotoapparat.util.FrameProcessor
 import io.fotoapparat.view.CameraView
 import retrofit2.Call
@@ -59,6 +59,10 @@ class CameraActivity : AppCompatActivity() {
     private var mydb: DBHelper? = null
     private var recogName: String = ""
     private var recogEmployeeId: String = ""
+
+    private var supervisorCurrentAddress: String? = null
+    private var latitude: Double = 0.0;
+    private var longitude: Double = 0.0
 
 
     private val mHandler: Handler = object : Handler(Looper.getMainLooper()) {
@@ -99,7 +103,6 @@ class CameraActivity : AppCompatActivity() {
                     insertAttendance(recogEmployeeId)
 
 
-
                 } else {
                     binding.animationView.visibility = View.GONE
                     binding.status.text = "Face Match Failed"
@@ -119,15 +122,15 @@ class CameraActivity : AppCompatActivity() {
             .api
             .addNewAttendance(
                 employeeId,
-                0.0,
-                0.0,
-                "test",
+                latitude,
+                longitude,
+                supervisorCurrentAddress,
                 userCredentialPreference!!.userId
             )
 
         newScanCall.enqueue(object : Callback<RpNewScan2?> {
             override fun onResponse(call: Call<RpNewScan2?>, response: Response<RpNewScan2?>) {
-                Log.d(TAG, "onResponse: Code: "+response.code())
+                Log.d(TAG, "onResponse: Code: " + response.code())
                 //Log.d(TAG, "onResponse: data: "+ response.body().toString());
                 if (response.code() == 201 || response.code() == 200) {
                     assert(response.body() != null)
@@ -135,9 +138,12 @@ class CameraActivity : AppCompatActivity() {
                     showConfirmation(employeeName)
                 } else {
                     try {
-                        Log.d(TAG, "onResponse: Code: "+response.errorBody()!!.string())
+                        Log.d(TAG, "onResponse: Code: " + response.errorBody()!!.string())
 
-                        Toast.makeText(applicationContext, " কিছু একটা সমস্যা হয়েছে " + response.errorBody()!!.string(), Toast.LENGTH_SHORT
+                        Toast.makeText(
+                            applicationContext,
+                            " কিছু একটা সমস্যা হয়েছে " + response.errorBody()!!.string(),
+                            Toast.LENGTH_SHORT
                         ).show()
                         //showConfirmation(employeeName)
                     } catch (e: IOException) {
@@ -147,7 +153,11 @@ class CameraActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<RpNewScan2?>, t: Throwable) {
-                Toast.makeText(applicationContext, " কিছু একটা সমস্যা হয়েছে " + t.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    applicationContext,
+                    " কিছু একটা সমস্যা হয়েছে " + t.message,
+                    Toast.LENGTH_SHORT
+                ).show()
                 Log.d(TAG, "onFailure: Error: " + t.message)
             }
         })
@@ -157,7 +167,11 @@ class CameraActivity : AppCompatActivity() {
 
     private fun showConfirmation(msg: String) {
 
-        val bar = Snackbar.make(binding.mainView, "$msg এর উপস্থিতি নিশ্চিত হয়েছে।", Snackbar.LENGTH_INDEFINITE)
+        val bar = Snackbar.make(
+            binding.mainView,
+            "$msg এর উপস্থিতি নিশ্চিত হয়েছে।",
+            Snackbar.LENGTH_INDEFINITE
+        )
             .setAction("OK") {
 
             }
@@ -171,6 +185,10 @@ class CameraActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_camera)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true);
         userCredentialPreference = UserCredentialPreference.getPreferences(this)
+
+        supervisorCurrentAddress = intent.getStringExtra(ADDRESS)
+        latitude = intent.getDoubleExtra(LATITUDE, 0.0)
+        longitude = intent.getDoubleExtra(LONGITUDE, 0.0)
 
         appCtx = applicationContext
         cameraView = findViewById<View>(R.id.camera_view) as CameraView
@@ -291,9 +309,11 @@ class CameraActivity : AppCompatActivity() {
         }
 
         override fun invoke(frame: Frame) {
-            val faceResults: List<FaceResult> = FaceEngine.getInstance(appCtx).detectFace(frame.image, frame.size.width, frame.size.height)
+            val faceResults: List<FaceResult> = FaceEngine.getInstance(appCtx)
+                .detectFace(frame.image, frame.size.width, frame.size.height)
             if (faceResults.isNotEmpty()) {
-                FaceEngine.getInstance(appCtx).livenessProcess(frame.image, frame.size.width, frame.size.height, faceResults)
+                FaceEngine.getInstance(appCtx)
+                    .livenessProcess(frame.image, frame.size.width, frame.size.height, faceResults)
                 if (frThreadQueue!!.remainingCapacity() > 0) {
                     frExecutor!!.execute(
                         FaceRecognizeRunnable(
@@ -335,8 +355,10 @@ class CameraActivity : AppCompatActivity() {
 
             var exists = false
             try {
-                FaceEngine.getInstance(appCtx).extractFeature(nv21Data, width, height, false, faceResults)
-                val result: SearchResult = FaceEngine.getInstance(appCtx).searchFaceFeature(FaceFeature(faceResults[0].feature))
+                FaceEngine.getInstance(appCtx)
+                    .extractFeature(nv21Data, width, height, false, faceResults)
+                val result: SearchResult = FaceEngine.getInstance(appCtx)
+                    .searchFaceFeature(FaceFeature(faceResults[0].feature))
                 if (result.maxSimilar > 0.8f) {
                     for (user in MainActivity.userLists) {
                         if (user.user_id == result.faceFeatureInfo!!.searchId && faceResults[0].liveness == 1) {

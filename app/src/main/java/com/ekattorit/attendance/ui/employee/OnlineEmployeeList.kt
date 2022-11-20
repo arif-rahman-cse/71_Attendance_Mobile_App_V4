@@ -118,4 +118,8 @@ class OnlineEmployeeList : AppCompatActivity() {
         binding.rvEmployeeList.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
     }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+    }
 }

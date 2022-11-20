@@ -38,7 +38,7 @@ public class Profile{
 	private boolean faceAddPermission;
 
 	@SerializedName("supervisor_longitude")
-	private String supervisorLongitude;
+	private float supervisorLongitude;
 
 	@SerializedName("supervisor_ward")
 	private String supervisorWard;
@@ -47,7 +47,7 @@ public class Profile{
 	private int user;
 
 	@SerializedName("supervisor_latitude")
-	private String supervisorLatitude;
+	private float supervisorLatitude;
 
 	public String getImage(){
 		return image;
@@ -93,7 +93,7 @@ public class Profile{
 		return faceAddPermission;
 	}
 
-	public String getSupervisorLongitude(){
+	public float getSupervisorLongitude(){
 		return supervisorLongitude;
 	}
 
@@ -105,7 +105,7 @@ public class Profile{
 		return user;
 	}
 
-	public String getSupervisorLatitude(){
+	public float getSupervisorLatitude(){
 		return supervisorLatitude;
 	}
 }

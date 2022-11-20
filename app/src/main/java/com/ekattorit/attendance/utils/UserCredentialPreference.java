@@ -93,22 +93,22 @@ public class UserCredentialPreference {
         editor.apply();
     }
 
-    public String getSuperVisorLatitude() {
-        return sharedPreferences.getString(AppConfig.SUPERVISOR_LATITUDE, null);
+    public float getSuperVisorLatitude() {
+        return sharedPreferences.getFloat(AppConfig.SUPERVISOR_LATITUDE, 0.0f);
     }
 
-    public void setSuperVisorLatitude(String superVisorLatitude) {
-        editor.putString(AppConfig.SUPERVISOR_LATITUDE, superVisorLatitude);
+    public void setSuperVisorLatitude(float superVisorLatitude) {
+        editor.putFloat(AppConfig.SUPERVISOR_LATITUDE, superVisorLatitude);
         editor.apply();
     }
 
 
-    public String getSuperVisorLongitude() {
-        return sharedPreferences.getString(AppConfig.SUPERVISOR_LONGITUDE, null);
+    public float getSuperVisorLongitude() {
+        return sharedPreferences.getFloat(AppConfig.SUPERVISOR_LONGITUDE, 0.0f);
     }
 
-    public void setSuperVisorLongitude(String superVisorLongitude) {
-        editor.putString(AppConfig.SUPERVISOR_LONGITUDE, superVisorLongitude);
+    public void setSuperVisorLongitude(float superVisorLongitude) {
+        editor.putFloat(AppConfig.SUPERVISOR_LONGITUDE, superVisorLongitude);
         editor.apply();
     }
 

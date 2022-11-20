@@ -23,6 +23,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.ekattorit.attendance.R;
 import com.ekattorit.attendance.databinding.ActivitySingleRangeAttendanceBinding;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -199,6 +200,12 @@ public class SingleRangeAttendance extends AppCompatActivity {
 
                     } else {
                         binding.errorView.setVisibility(View.VISIBLE);
+                    }
+                }else {
+                    try {
+                        Log.d(TAG, "onResponse: Error: " +response.errorBody().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }

@@ -6,13 +6,21 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.location.Geocoder
+import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.*
+import android.widget.AbsListView
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -20,8 +28,12 @@ import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.bumptech.glide.Glide
-import com.ekattorit.attendance.*
+import com.ekattorit.attendance.DBHelper
+import com.ekattorit.attendance.FaceEntity
+import com.ekattorit.attendance.R
+import com.ekattorit.attendance.Utils
 import com.ekattorit.attendance.databinding.ActivityMainBinding
 import com.ekattorit.attendance.retrofit.RetrofitClient
 import com.ekattorit.attendance.ui.employee.EmployeeCardScanActivity
@@ -39,6 +51,8 @@ import com.ekattorit.attendance.ui.scan.CameraActivity
 import com.ekattorit.attendance.utils.AppConfig
 import com.ekattorit.attendance.utils.AppProgressBar
 import com.ekattorit.attendance.utils.UserCredentialPreference
+import com.google.android.gms.location.*
+import com.google.android.gms.tasks.Task
 import com.google.android.material.navigation.NavigationView
 import com.ttv.face.FaceEngine
 import com.ttv.face.FaceFeatureInfo
@@ -53,6 +67,7 @@ import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
 import java.text.MessageFormat
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -63,6 +78,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var userCredentialPreference: UserCredentialPreference? = null
     private val scanItemList: ArrayList<ScanItem> = ArrayList()
     private var recentScanAdapter: RecentScanAdapter? = null
+    private var mFusedLocationClient: FusedLocationProviderClient? = null
+    var isScanFaceCircleClicked = false
+    private val LOCATION_PERMISSION_ID = 102
 
 
     companion object {
@@ -90,21 +108,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var lastPage: Int = 0
 
     //For Convert URL to Bitmap
-    private var myExecutor : ExecutorService?=null
-    private var myHandler : Handler?=null
+    private var myExecutor: ExecutorService? = null
+    private var myHandler: Handler? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         userCredentialPreference = UserCredentialPreference.getPreferences(this)
         binding.navigationDrawer.setNavigationItemSelectedListener(this)
 
 
         // Declaring and initializing an Executor and a Handler
-         myExecutor = Executors.newSingleThreadExecutor()
-         myHandler = Handler(Looper.getMainLooper())
+        myExecutor = Executors.newSingleThreadExecutor()
+        myHandler = Handler(Looper.getMainLooper())
 
         context = this
         FaceEngine.getInstance(this).setActivation("")
@@ -117,9 +136,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
         binding.cvScanCircle.setOnClickListener {
-            val intent = Intent(this, CameraActivity::class.java)
-            finish()
-            startActivity(intent)
+            isScanFaceCircleClicked = true
+            getUserCurrentLocation()
+
         }
 
         binding.checkEmployee.setOnClickListener {
@@ -133,7 +152,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 val intent = Intent(this, EmployeeCardScanActivity::class.java)
                 intent.putExtra(AppConfig.IS_FROM_ADD_FACE, false)
-                startActivity(intent)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                applicationContext.startActivity(intent)
 
             } else {
                 ActivityCompat.requestPermissions(
@@ -185,7 +205,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 Log.d(TAG, "onScrolled: Current item: $currentItems")
                 Log.d(TAG, "onScrolled: Total Item: $totalItems")
                 Log.d(TAG, "onScrolled: Scroll Out Item: $scrollOutItems")
-                var scrolledItem = currentItems + scrollOutItems
+                val scrolledItem = currentItems + scrollOutItems
                 Log.d(TAG, "onScrolled: total scrolled item: $scrolledItem")
 
                 if (isScrolling && (currentItems + scrollOutItems >= totalItems)) {
@@ -236,7 +256,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     private fun initRecyclerView() {
-        recentScanAdapter = RecentScanAdapter(this, scanItemList, userCredentialPreference!!.attendanceTimeDiff)
+        recentScanAdapter =
+            RecentScanAdapter(this, scanItemList, userCredentialPreference!!.attendanceTimeDiff)
         binding.rvDailySales.adapter = recentScanAdapter
         linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.rvDailySales.layoutManager = linearLayoutManager
@@ -350,7 +371,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 mydb!!.deleteAllUser()
                 mydb!!.getAllUsers()
                 Log.d(TAG, "onNavigationItemSelected: Local User Size: ${userLists.size}")
-                AppProgressBar.messageProgressFixed(context, "সার্ভার থেকে ফেস সিঙ্ক হচ্ছে... কিছু সময় লাগতে পারে। অনুগ্রহ করে অ্যাপ বন্ধ করবেন না।")
+                AppProgressBar.messageProgressFixed(
+                    context,
+                    "সার্ভার থেকে ফেস সিঙ্ক হচ্ছে... কিছু সময় লাগতে পারে। অনুগ্রহ করে অ্যাপ বন্ধ করবেন না।"
+                )
                 syncFaceWithServer()
 
                 return true
@@ -374,19 +398,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (response.isSuccessful && response.code() == 200) {
                     Log.d(TAG, "onResponse: Success")
                     if (response.body()!!.size > 0) {
-                        Log.d(TAG, "onResponse: Face Size: "+response.body()!!.size )
+                        Log.d(TAG, "onResponse: Face Size: " + response.body()!!.size)
                         val size = response.body()!!.size
                         for (item in response.body()!!) {
                             insertFaceInLocalDB(item, size)
                             Log.d(TAG, "onResponse: Item: ${item!!.empId}")
-                            
+
                         }
                         Log.d(TAG, "onResponse: Iteration done")
                         //AppProgressBar.hideMessageProgress()
-                    }else{
+                    } else {
                         AppProgressBar.hideMessageProgress()
                     }
-                }else{
+                } else {
                     AppProgressBar.hideMessageProgress()
                 }
             }
@@ -410,13 +434,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 //Log.d(TAG, "onCreate: Image loaded")
                 myHandler!!.post {
                     //Log.d(TAG, "onCreate: Image loaded")
-                    if(bitmap!=null){
+                    if (bitmap != null) {
                         //Log.d(TAG, "onCreate: Detect Image")
-                        val faceResults: MutableList<FaceResult> = FaceEngine.getInstance(this).detectFace(bitmap)
+                        val faceResults: MutableList<FaceResult> =
+                            FaceEngine.getInstance(this).detectFace(bitmap)
                         if (faceResults.count() == 1) {
-                            FaceEngine.getInstance(context).extractFeature(bitmap, true, faceResults)
+                            FaceEngine.getInstance(context)
+                                .extractFeature(bitmap, true, faceResults)
                             //val result: SearchResult = FaceEngine.getInstance(this).searchFaceFeature(FaceFeature(faceResults[0].feature))
-                            val cropRect = Utils.getBestRect(bitmap.width, bitmap.height, faceResults[0].rect)
+                            val cropRect =
+                                Utils.getBestRect(bitmap.width, bitmap.height, faceResults[0].rect)
                             val headImg = Utils.crop(
                                 bitmap,
                                 cropRect.left,
@@ -427,7 +454,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 120
                             )
 
-                            val user_id = mydb!!.insertUser(item.empName, item.empId, headImg, faceResults[0].feature)
+                            val user_id = mydb!!.insertUser(
+                                item.empName,
+                                item.empId,
+                                headImg,
+                                faceResults[0].feature
+                            )
                             val _face = FaceEntity(
                                 user_id,
                                 item.empName,
@@ -439,17 +471,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             val faceFeatureInfo = FaceFeatureInfo(user_id, faceResults[0].feature)
                             FaceEngine.getInstance(context).registerFaceFeature(faceFeatureInfo)
                             //Log.d(TAG, "insertFaceInLocalDB: Success!!")
-                            Log.d(TAG, "insertFaceInLocalDB: Size Local: ${userLists.size} And Size Server: $size")
+                            Log.d(
+                                TAG,
+                                "insertFaceInLocalDB: Size Local: ${userLists.size} And Size Server: $size"
+                            )
 
-                            if (userLists.size >= size){
+                            if (userLists.size >= size) {
                                 AppProgressBar.hideMessageProgress()
-                                AppProgressBar.userActionSuccessPb(context, "ফেইস সিঙ্ক সফল হয়েছে !")
+                                AppProgressBar.userActionSuccessPb(
+                                    context,
+                                    "ফেইস সিঙ্ক সফল হয়েছে !"
+                                )
                             }
 
 
                         } else {
                             Log.d(TAG, "insertFaceInLocalDB: No Face Detect!!")
-                            Toast.makeText(context, "No Face Detect for employee "+item.empName, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "No Face Detect for employee " + item.empName,
+                                Toast.LENGTH_SHORT
+                            ).show()
                             AppProgressBar.hideMessageProgress()
                         }
                     }
@@ -479,7 +521,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return BitmapFactory.decodeStream(bufferedInputStream)
         } catch (e: IOException) {
             e.printStackTrace()
-            Toast.makeText(applicationContext, "Error", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
         }
         return null
     }
@@ -492,8 +534,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         return null
     }
-
-
 
 
     private fun startNewActivity(packageContext: Context, cls: Class<*>) {
@@ -519,5 +559,223 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onResume()
         Log.d(TAG, "onResume: Called")
 
+    }
+
+    private fun getUserCurrentLocation() {
+        if (checkPermissions()) {
+            if (isLocationEnabled()) {
+                //AppUtils.showMessageProgress(OutletVerificationActivity.this, "অপেক্ষা করুন ...");
+                if (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    mFusedLocationClient!!.lastLocation.addOnCompleteListener { task: Task<Location?> ->
+                        val location = task.result
+                        if (location == null) {
+                            Log.d(TAG, "getUserCurrentLocation: Location is null")
+                            //getUserCurrentLocation();
+                        } else {
+                            Log.d(TAG, "getLastLocation: onComplete: " + location.latitude)
+                            Log.d(TAG, "getLastLocation: onComplete: " + location.longitude)
+                            //getAddress(location.getLatitude(), location.getLongitude());
+                        }
+                        // Always call New Location data because FusedLocationProviderClient hold previous location information.
+                        Log.d(TAG, "getUserCurrentLocation: Request new Location")
+                        requestNewLocationData()
+                    }
+                } else {
+                    // Permission is not granted. Request for permission
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        LOCATION_PERMISSION_ID
+                    )
+                }
+            } else {
+                val sweetAlertDialog =
+                    SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
+                sweetAlertDialog.setTitleText("নির্দেশনা!!!")
+                    .setContentText("আপনার ফোনের লোকেশন বন্ধ আছে । অনুগ্রহ করে লোকেশন এনাবল করুন ।")
+                    .setConfirmText("এনাবল করুন")
+                    .setConfirmClickListener { sDialog: SweetAlertDialog ->
+                        Log.d(TAG, "onClick: User Agreed!")
+                        val intent =
+                            Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                        startActivity(intent)
+                        sDialog.dismissWithAnimation()
+                    }.show()
+                sweetAlertDialog.setCancelable(false)
+            }
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_ID
+            )
+        }
+    }
+
+    private fun checkPermissions(): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun isLocationEnabled(): Boolean {
+        val locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER
+        )
+    }
+
+    private fun requestNewLocationData() {
+        AppProgressBar.showMessageProgress(context, "আপনার অবস্থান যাচাই করা হচ্ছে...")
+        Log.d(TAG, "requestNewLocationData: Request new Location data ")
+        val mLocationRequest = LocationRequest.create()
+        mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        mLocationRequest.interval = (5 * 1000).toLong()
+        mLocationRequest.fastestInterval = 3000
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d(TAG, "requestNewLocationData: Request new Location data update")
+            //Activate Looper
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            Looper.myLooper()?.let {
+                mFusedLocationClient!!.requestLocationUpdates(
+                    mLocationRequest,
+                    mLocationCallback,
+                    it
+                )
+            }
+        } else {
+            // Permission is not granted. Request for permission
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_ID
+            )
+        }
+    }
+
+    private var mLocationCallback: LocationCallback = object : LocationCallback() {
+
+        override fun onLocationResult(locationResult: LocationResult) {
+            val mLastLocation = locationResult.lastLocation
+            Log.d(TAG, "onLocationResult: onComplete: " + mLastLocation.latitude)
+            Log.d(TAG, "onLocationResult: onComplete: " + mLastLocation.longitude)
+            val outletLat = mLastLocation.latitude
+            val outletLong = mLastLocation.longitude
+
+            //getAddress(outletLat, outletLong);
+            Log.d(TAG, "onLocationResult: LAT: $outletLat")
+            Log.d(TAG, "onLocationResult: LONG: $outletLong")
+            if (isScanFaceCircleClicked) {
+                checkSupervisorRadius(outletLat, outletLong)
+            }
+        }
+
+        override fun onLocationAvailability(locationAvailability: LocationAvailability) {
+            super.onLocationAvailability(locationAvailability)
+            Log.d(TAG, "onLocationAvailability: " + locationAvailability.isLocationAvailable)
+        }
+    }
+
+    private fun checkSupervisorRadius(userCurrentLat: Double, userCurrentLong: Double) {
+        Log.d(TAG, "checkSupervisorRadius: User Current Lat: $userCurrentLat")
+        Log.d(TAG, "checkSupervisorRadius: User Current Long: $userCurrentLong")
+        val superVisorLat = userCredentialPreference!!.superVisorLatitude
+        val superVisorLong = userCredentialPreference!!.superVisorLongitude
+
+        Log.d(TAG, "checkSupervisorRadius: Assign Lat: $superVisorLat")
+        Log.d(TAG, "checkSupervisorRadius: Assign Long: $superVisorLong")
+
+        if (superVisorLat > 0.0 && superVisorLong > 0.0) {
+            if (userCurrentLat > 0 && userCurrentLong > 0) {
+                val startPoint = Location("locationA")
+                startPoint.latitude = userCurrentLat
+                startPoint.longitude = userCurrentLong
+                val endPoint = Location("locationA")
+                endPoint.latitude = superVisorLat.toDouble()
+                endPoint.longitude = superVisorLong.toDouble()
+                val distance = startPoint.distanceTo(endPoint).toDouble()
+                Log.d(TAG, "checkOutletRadius: Distance in Meters: $distance")
+                if (distance <= userCredentialPreference!!.superVisorRange) {
+                    //AppProgressBar.hideMessageProgress();
+                    Log.d(TAG, "checkOutletRadius: Distance in Meters: $distance")
+                    getAddress(userCurrentLat, userCurrentLong)
+                } else {
+                    AppProgressBar.hideMessageProgress()
+                    // mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+                    isScanFaceCircleClicked = false
+
+                    //mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+                    val sDialog = SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
+                    sDialog.setCancelable(false)
+                    sDialog.setTitleText("আপনাকে অবশ্যই " + userCredentialPreference!!.superVisorWard.toString() + " নাম্বার ওয়ার্ড এর সীমার মধ্যে থাকতে হবে")
+                        .setContentText(
+                            userCredentialPreference!!.superVisorWard.toString() + " নাম্বার ওয়ার্ড এর সীমানা থেকে " + String.format(
+                                Locale.getDefault(), "%.1f", distance
+                            ) + " মিটার দূরে আছেন "
+                        )
+                        .setConfirmText("রিফ্রেশ")
+                        .setCancelText("বাতিল")
+                        .showCancelButton(false)
+                        .setConfirmButtonBackgroundColor(Color.RED)
+                        .setConfirmClickListener { sweetAlertDialog: SweetAlertDialog ->
+                            Log.d(TAG, "onClick: Stay Here!")
+                            //AppProgressBar.showMessageProgress(HomeActivity.this, "লোকেশন রিফ্রেশ হচ্ছে ... ");
+                            isScanFaceCircleClicked = true
+                            getUserCurrentLocation()
+                            sweetAlertDialog.dismissWithAnimation()
+                        }.show()
+                }
+            } else {
+                AppProgressBar.hideMessageProgress()
+                isScanFaceCircleClicked = false
+                AppProgressBar.userAttentionPb(this, "আপনার লোকেশন পাওয়া যায়নি আবার চেষ্টা করুন ")
+            }
+        } else {
+            AppProgressBar.hideMessageProgress()
+            isScanFaceCircleClicked = false
+            AppProgressBar.userAttentionPb(
+                this,
+                "সুপারভাইজার এর লোকেশন পাওয়া যায়নি সাপোর্ট এ যোগাযোগ করুন "
+            )
+        }
+    }
+
+    private fun getAddress(latitude: Double, longitude: Double) {
+        AppProgressBar.hideMessageProgress()
+        Log.d(TAG, "getAddress: called")
+        //AppProgressBar.hideMessageProgress();
+        try {
+            val geocoder = Geocoder(this, Locale.getDefault())
+            val addresses = geocoder.getFromLocation(latitude, longitude, 5)
+            val addressSize = addresses.size
+            if (addressSize > 0) {
+                val sb = StringBuilder()
+                addresses.forEachIndexed { index, item ->
+                    println("index = $index, item = ${item.getAddressLine(index)} ")
+                    sb.append(item.getAddressLine(index))
+                }
+                val intent = Intent(this, CameraActivity::class.java)
+                intent.putExtra(AppConfig.ADDRESS, sb.toString())
+                intent.putExtra(AppConfig.LATITUDE, latitude)
+                intent.putExtra(AppConfig.LONGITUDE, longitude)
+                mFusedLocationClient!!.removeLocationUpdates(mLocationCallback)
+                startActivity(intent)
+                finish()
+            }
+        } catch (e: IOException) {
+            Log.d(TAG, "getAddress: IOException: " + e.message)
+        }
+    }
+
+    override fun onBackPressed() {
+        finish()
     }
 }

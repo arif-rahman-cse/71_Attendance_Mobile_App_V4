@@ -27,6 +27,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
                     android:padding="4dp"
                     android:text="@string/scan_result_title"
                     android:textColor="@color/green"
@@ -79,9 +80,9 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:layout_weight=".1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_weight=".1"
                             android:text="@string/separator"
                             android:textStyle="bold" />
 
@@ -110,10 +111,11 @@
                             android:layout_weight="1"
                             android:text="@string/card_owner_title"
                             android:textStyle="bold" />
+
                         <TextView
-                            android:layout_weight=".1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_weight=".1"
                             android:text="@string/separator"
                             android:textStyle="bold" />
 
@@ -139,10 +141,11 @@
                             android:layout_weight="1"
                             android:text="@string/designation_title"
                             android:textStyle="bold" />
+
                         <TextView
-                            android:layout_weight=".1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_weight=".1"
                             android:text="@string/separator"
                             android:textStyle="bold" />
 
@@ -168,10 +171,11 @@
                             android:layout_weight="1"
                             android:text="@string/word_no_title"
                             android:textStyle="bold" />
+
                         <TextView
-                            android:layout_weight=".1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_weight=".1"
                             android:text="@string/separator"
                             android:textStyle="bold" />
 
@@ -200,10 +204,11 @@
                             android:layout_weight="1"
                             android:text="@string/phone"
                             android:textStyle="bold" />
+
                         <TextView
-                            android:layout_weight=".1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_weight=".1"
                             android:text="@string/separator"
                             android:textStyle="bold" />
 
@@ -232,10 +237,11 @@
                             android:layout_weight="1"
                             android:text="@string/nid"
                             android:textStyle="bold" />
+
                         <TextView
-                            android:layout_weight=".1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_weight=".1"
                             android:text="@string/separator"
                             android:textStyle="bold" />
 
@@ -264,10 +270,11 @@
                             android:layout_weight="1"
                             android:text="@string/blood_group"
                             android:textStyle="bold" />
+
                         <TextView
-                            android:layout_weight=".1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_weight=".1"
                             android:text="@string/separator"
                             android:textStyle="bold" />
 
@@ -293,23 +300,24 @@
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:layout_gravity="center"
+                            android:layout_weight="1"
                             android:text="@string/address"
                             android:textStyle="bold" />
+
                         <TextView
-                            android:layout_weight=".1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/separator"
                             android:layout_gravity="center"
+                            android:layout_weight=".1"
+                            android:text="@string/separator"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tv_address"
                             android:layout_width="0dp"
-                            android:layout_gravity="center"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center"
                             android:layout_weight="1"
                             tools:text="dhaka" />
 
@@ -320,8 +328,6 @@
 
 
             </com.google.android.material.card.MaterialCardView>
-
-
 
 
         </LinearLayout>
