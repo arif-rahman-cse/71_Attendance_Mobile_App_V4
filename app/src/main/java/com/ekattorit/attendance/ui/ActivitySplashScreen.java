@@ -128,6 +128,7 @@ public class ActivitySplashScreen extends AppCompatActivity {
                     userCredentialPreference.setIsFaceRemovePermission(rpLogin.getProfile().isFaceDeletePermission());
                     userCredentialPreference.setIsFaceAddPermission(rpLogin.getProfile().isFaceAddPermission());
                     userCredentialPreference.setAttendanceTimeDiff(rpLogin.getProfile().getAttendanceTimeDiff());
+                    userCredentialPreference.setUserToken("Token "+rpLogin.getToken());
 
                     Intent intent = new Intent(ActivitySplashScreen.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -139,12 +140,15 @@ public class ActivitySplashScreen extends AppCompatActivity {
                     try {
                         Gson gson = new GsonBuilder().create();
                         RpLoginError loginError;
-                        loginError = gson.fromJson(response.errorBody().string(), RpLoginError.class);
-                        Log.d(TAG, "onResponse: Error: " + response.errorBody().string());
-                        if (loginError != null && !loginError.getNonFieldErrors().isEmpty()) {
-                            showErrorLogin(loginError.getNonFieldErrors().get(0));
-                            Log.d(TAG, "onResponse: Error: " + loginError.getNonFieldErrors());
+                        if (response.errorBody() != null){
+                            loginError = gson.fromJson(response.errorBody().string(), RpLoginError.class);
+                            Log.d(TAG, "onResponse: Error: " + response.errorBody().string());
+                            if (loginError != null && !loginError.getNonFieldErrors().isEmpty()) {
+                                showErrorLogin(loginError.getNonFieldErrors().get(0));
+                                Log.d(TAG, "onResponse: Error: " + loginError.getNonFieldErrors());
+                            }
                         }
+
                     } catch (IOException e) {
                         // handle failure at error parse
                         showErrorLogin(e.getMessage());
@@ -160,7 +164,8 @@ public class ActivitySplashScreen extends AppCompatActivity {
                 Log.d(TAG, "onResponse: Error");
                 Log.e(TAG, "onFailure: " + t.getMessage());
                 Toast.makeText(ActivitySplashScreen.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                tryLogin(phone, password);
+                //tryLogin(phone, password);
+                showErrorLogin(t.getMessage());
                 //goLoginScreen();
                 //Toast.makeText(SplashScreen.this, "User not found or Password doesn't match", Toast.LENGTH_SHORT).show();
             }

@@ -21,6 +21,8 @@ import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
+import retrofit2.http.Headers;
 import retrofit2.http.Multipart;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
@@ -43,6 +45,7 @@ public interface ApiInterface {
     @Multipart
     @POST("add-face/new")
     Call<RpNewFace> addNewFace(
+            @Header("Authorization") String token,
             @Part("emp_id") String emp_id,
             @Part("emp_name") String emp_name,
             @Part("supervisor") int supervisor_id,
@@ -69,22 +72,26 @@ public interface ApiInterface {
 
     @GET("employee-face/list/{user_id}")
     Call<ArrayList<RpItemFace>> getEmployeeFace(
+            @Header("Authorization") String token,
             @Path("user_id") int userId
     );
 
     @GET("employee/details/{employee_id}")
     Call<RpEmpDetails> getEmpDetails(
+            @Header("Authorization") String token,
             @Path("employee_id") String empId
     );
 
 
     @GET("employee/list/{user_id}")
     Call<ArrayList<RpEmpDetails>> getEmployee(
+            @Header("Authorization") String token,
             @Path("user_id") int userId
     );
 
     @GET("recent_attendance/list")
     Call<RpRecentScan> getRecentScan(
+            @Header("Authorization") String token,
             @Query("page") int pageNumber,
             @Query("scan_by") int scanBy
     );
@@ -102,6 +109,7 @@ public interface ApiInterface {
 
     @GET("report/par_day_attendance/")
     Call<List<RpAttendance>> getPerDayAttendance(
+            @Header("Authorization") String token,
             @Query("xdate") String date,
             @Query("user_id") int user_id
     );
@@ -116,6 +124,7 @@ public interface ApiInterface {
     @Multipart
     @POST("attendance/new")
     Call<RpNewScan2> addNewAttendance(
+            @Header("Authorization") String token,
             //@Part("business") String business_id,
             //@Part("user") int superVisor,
             //@Part("word_no") String wordNo,
@@ -141,6 +150,7 @@ public interface ApiInterface {
 
     @GET("report/range_attendance_single/{start_date}/{end_date}/{user_id}/{emp_id}")
     Call<List<RpAttendance>> getSingleEmployeeAttendance(
+            @Header("Authorization") String token,
             @Path("start_date") String start_date,
             @Path("end_date") String end_date,
             @Path("user_id") int user_id,
@@ -150,6 +160,7 @@ public interface ApiInterface {
 
     @GET("report/attendance_summery/")
     Call<RpAttendanceSummary> getAttendanceSummary(
+            @Header("Authorization") String token,
             @Query("user_id") int supervisor_id,
             @Query("start_date") String start_date,
             @Query("end_date") String end_date
@@ -158,12 +169,14 @@ public interface ApiInterface {
     @FormUrlEncoded
     @PATCH("upload/face/{pk}")
     Call<RpUpFace> uploadFace(
+            @Header("Authorization") String token,
             @Path("pk") int id,
             @Field("face_embeddings") String face
     );
 
     @GET("upload/face/{pk}")
     Call<RpUpFace> syncFace(
+            @Header("Authorization") String token,
             @Path("pk") int id
     );
 

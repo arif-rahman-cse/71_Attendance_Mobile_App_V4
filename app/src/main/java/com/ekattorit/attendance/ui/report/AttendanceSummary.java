@@ -123,7 +123,7 @@ public class AttendanceSummary extends AppCompatActivity {
         Call<RpAttendanceSummary> attendanceCall = RetrofitClient
                 .getInstance()
                 .getApi()
-                .getAttendanceSummary(userCredentialPreference.getUserId(),startDate, endDate);
+                .getAttendanceSummary(userCredentialPreference.getUserToken(), userCredentialPreference.getUserId(),startDate, endDate);
 
         attendanceCall.enqueue(new Callback<RpAttendanceSummary>() {
             @Override

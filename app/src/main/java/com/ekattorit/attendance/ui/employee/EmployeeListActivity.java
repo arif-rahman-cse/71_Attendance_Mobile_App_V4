@@ -94,7 +94,7 @@ public class EmployeeListActivity extends AppCompatActivity {
         Call<RpUpFace> newScanCall = RetrofitClient
                 .getInstance()
                 .getApi()
-                .uploadFace(userCredentialPreference.getUserId(), jsonString);
+                .uploadFace(userCredentialPreference.getUserToken(), userCredentialPreference.getUserId(), jsonString);
 
         newScanCall.enqueue(new Callback<RpUpFace>() {
             @Override
@@ -225,7 +225,7 @@ public class EmployeeListActivity extends AppCompatActivity {
 
     private void getEmployee(int userId) {
 
-        Call<ArrayList<RpEmpDetails>> rpShift = RetrofitClient.getInstance().getApi().getEmployee(userId);
+        Call<ArrayList<RpEmpDetails>> rpShift = RetrofitClient.getInstance().getApi().getEmployee(userCredentialPreference.getUserToken(),userId);
         rpShift.enqueue(new Callback<ArrayList<RpEmpDetails>>() {
             @Override
             public void onResponse(Call<ArrayList<RpEmpDetails>> call, Response<ArrayList<RpEmpDetails>> response) {

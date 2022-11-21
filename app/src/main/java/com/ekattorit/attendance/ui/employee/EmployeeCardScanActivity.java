@@ -139,7 +139,7 @@ public class EmployeeCardScanActivity extends AppCompatActivity {
         Call<RpEmpDetails> cardDetailsCall = RetrofitClient
                 .getInstance()
                 .getApi()
-                .getEmpDetails(qrData);
+                .getEmpDetails(userCredentialPreference.getUserToken(),qrData);
 
         cardDetailsCall.enqueue(new Callback<RpEmpDetails>() {
             @Override

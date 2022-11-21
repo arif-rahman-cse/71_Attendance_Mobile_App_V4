@@ -80,7 +80,7 @@ class OnlineEmployeeList : AppCompatActivity() {
     }
 
     private fun getEmployee(userId: Int) {
-        val employees = RetrofitClient.getInstance().api.getEmployee(userId)
+        val employees = RetrofitClient.getInstance().api.getEmployee(userCredentialPreference!!.userToken, userId)
         employees.enqueue(object : Callback<ArrayList<RpEmpDetails>> {
             override fun onResponse(
                 call: Call<ArrayList<RpEmpDetails>>,

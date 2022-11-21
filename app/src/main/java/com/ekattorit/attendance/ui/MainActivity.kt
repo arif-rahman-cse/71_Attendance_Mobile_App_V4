@@ -270,7 +270,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val recentScanCall: Call<RpRecentScan> = RetrofitClient
             .getInstance()
             .api
-            .getRecentScan(currentPage + 1, userCredentialPreference!!.userId)
+            .getRecentScan(userCredentialPreference!!.userToken,currentPage + 1, userCredentialPreference!!.userId)
         recentScanCall.enqueue(object : Callback<RpRecentScan?> {
             override fun onResponse(call: Call<RpRecentScan?>, response: Response<RpRecentScan?>) {
                 binding.progressBar.visibility = View.GONE
@@ -389,7 +389,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun getEmployee(userId: Int) {
-        val rpShift = RetrofitClient.getInstance().api.getEmployeeFace(userId)
+        val rpShift = RetrofitClient.getInstance().api.getEmployeeFace(userCredentialPreference!!.userToken,userId)
         rpShift.enqueue(object : Callback<java.util.ArrayList<RpItemFace?>?> {
             override fun onResponse(
                 call: Call<java.util.ArrayList<RpItemFace?>?>,
@@ -754,7 +754,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //AppProgressBar.hideMessageProgress();
         try {
             val geocoder = Geocoder(this, Locale.getDefault())
-            val addresses = geocoder.getFromLocation(latitude, longitude, 5)
+            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
             val addressSize = addresses.size
             if (addressSize > 0) {
                 val sb = StringBuilder()

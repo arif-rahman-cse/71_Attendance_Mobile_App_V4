@@ -171,7 +171,7 @@ public class SingleRangeAttendance extends AppCompatActivity {
         Call<List<RpAttendance>> attendanceCall = RetrofitClient
                 .getInstance()
                 .getApi()
-                .getSingleEmployeeAttendance(startDate, endDate, userCredentialPreference.getUserId(), employeeId);
+                .getSingleEmployeeAttendance(userCredentialPreference.getUserToken(),startDate, endDate, userCredentialPreference.getUserId(), employeeId);
 
         attendanceCall.enqueue(new Callback<List<RpAttendance>>() {
             @Override
@@ -219,7 +219,7 @@ public class SingleRangeAttendance extends AppCompatActivity {
 
     private void getEmployee(int userId) {
 
-        Call<ArrayList<RpEmpDetails>> rpShift = RetrofitClient.getInstance().getApi().getEmployee(userId);
+        Call<ArrayList<RpEmpDetails>> rpShift = RetrofitClient.getInstance().getApi().getEmployee(userCredentialPreference.getUserToken(), userId);
         rpShift.enqueue(new Callback<ArrayList<RpEmpDetails>>() {
             @Override
             public void onResponse(Call<ArrayList<RpEmpDetails>> call, Response<ArrayList<RpEmpDetails>> response) {

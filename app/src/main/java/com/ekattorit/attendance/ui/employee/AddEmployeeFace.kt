@@ -358,7 +358,7 @@ class AddEmployeeFace : AppCompatActivity() {
 
 
         val addNewFaceCall =
-            RetrofitClient.getInstance().api.addNewFace(empId, empName, supervisorId, facePart)
+            RetrofitClient.getInstance().api.addNewFace(userCredentialPreference!!.userToken,empId, empName, supervisorId, facePart)
         addNewFaceCall.enqueue(object : Callback<RpNewFace?> {
             override fun onResponse(
                 call: Call<RpNewFace?>,

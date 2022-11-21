@@ -84,6 +84,16 @@ public class UserCredentialPreference {
         editor.apply();
     }
 
+    public String getUserToken() {
+        return sharedPreferences.getString(AppConfig.TOKEN, null);
+    }
+
+    public void setUserToken(String token) {
+        editor.putString(AppConfig.TOKEN, token);
+        editor.apply();
+    }
+
+
     public String getUserType() {
         return sharedPreferences.getString(AppConfig.USER_TYPE, null);
     }

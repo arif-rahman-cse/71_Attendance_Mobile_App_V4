@@ -121,6 +121,7 @@ class CameraActivity : AppCompatActivity() {
             .getInstance()
             .api
             .addNewAttendance(
+                userCredentialPreference!!.userToken,
                 employeeId,
                 latitude,
                 longitude,
@@ -184,6 +185,7 @@ class CameraActivity : AppCompatActivity() {
         setContentView(R.layout.activity_camera)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_camera)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true);
+        supportActionBar!!.title = getString(R.string.live_face_verification)
         userCredentialPreference = UserCredentialPreference.getPreferences(this)
 
         supervisorCurrentAddress = intent.getStringExtra(ADDRESS)
