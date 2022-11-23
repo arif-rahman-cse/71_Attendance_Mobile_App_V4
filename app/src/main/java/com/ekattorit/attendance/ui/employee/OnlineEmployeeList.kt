@@ -95,6 +95,7 @@ class OnlineEmployeeList : AppCompatActivity() {
                         binding.errorView.visibility = View.GONE
                         empDetailsList.addAll(response.body()!!)
                         employeeListAdapter!!.notifyDataSetChanged()
+                        binding.tvTotalEmp.text = response.body()!!.size.toString()
                     } else {
                         binding.errorView.visibility = View.VISIBLE
                     }

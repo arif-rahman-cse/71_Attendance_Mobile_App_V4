@@ -54,6 +54,7 @@ class EmployeeListActivityV2 : AppCompatActivity(), OfflineEmployeeListAdapter.O
         mydb = DBHelper(this)
         context = this
         mydb!!.getAllUsers()
+        binding.tvTotalEmp.text = userLists.size.toString()
         initRecyclerView()
 
 

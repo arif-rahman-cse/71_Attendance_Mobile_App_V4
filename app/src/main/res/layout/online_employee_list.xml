@@ -57,6 +57,34 @@
             app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
 
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_margin="16dp" >
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end" />
+
+            <TextView
+                android:id="@+id/tv_total_emp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="6dp"
+                android:textColor="#fff"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_anchor="@id/fab"
+                app:layout_anchorGravity="center"
+                tools:text="50" />
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
 
 
         <ProgressBar

@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
@@ -21,6 +21,7 @@ import android.widget.AbsListView
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -30,6 +31,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.ekattorit.attendance.DBHelper
 import com.ekattorit.attendance.FaceEntity
 import com.ekattorit.attendance.R
@@ -60,10 +63,7 @@ import com.ttv.face.FaceResult
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.BufferedInputStream
 import java.io.IOException
-import java.io.InputStream
-import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
 import java.text.MessageFormat
@@ -270,7 +270,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val recentScanCall: Call<RpRecentScan> = RetrofitClient
             .getInstance()
             .api
-            .getRecentScan(userCredentialPreference!!.userToken,currentPage + 1, userCredentialPreference!!.userId)
+            .getRecentScan(
+                userCredentialPreference!!.userToken,
+                currentPage + 1,
+                userCredentialPreference!!.userId
+            )
         recentScanCall.enqueue(object : Callback<RpRecentScan?> {
             override fun onResponse(call: Call<RpRecentScan?>, response: Response<RpRecentScan?>) {
                 binding.progressBar.visibility = View.GONE
@@ -373,7 +377,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 Log.d(TAG, "onNavigationItemSelected: Local User Size: ${userLists.size}")
                 AppProgressBar.messageProgressFixed(
                     context,
-                    "সার্ভার থেকে ফেস সিঙ্ক হচ্ছে... কিছু সময় লাগতে পারে। অনুগ্রহ করে অ্যাপ বন্ধ করবেন না।"
+                    "সার্ভার থেকে ফেস ডাউনলোড হচ্ছে... কিছু সময় লাগতে পারে। অনুগ্রহ করে অ্যাপ বন্ধ করবেন না।"
                 )
                 syncFaceWithServer()
 
@@ -389,11 +393,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun getEmployee(userId: Int) {
-        val rpShift = RetrofitClient.getInstance().api.getEmployeeFace(userCredentialPreference!!.userToken,userId)
-        rpShift.enqueue(object : Callback<java.util.ArrayList<RpItemFace?>?> {
+        val rpShift = RetrofitClient.getInstance().api.getEmployeeFace(
+            userCredentialPreference!!.userToken,
+            userId
+        )
+        rpShift.enqueue(object : Callback<ArrayList<RpItemFace?>?> {
             override fun onResponse(
-                call: Call<java.util.ArrayList<RpItemFace?>?>,
-                response: Response<java.util.ArrayList<RpItemFace?>?>
+                call: Call<ArrayList<RpItemFace?>?>,
+                response: Response<ArrayList<RpItemFace?>?>
             ) {
                 if (response.isSuccessful && response.code() == 200) {
                     Log.d(TAG, "onResponse: Success")
@@ -415,7 +422,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
 
-            override fun onFailure(call: Call<java.util.ArrayList<RpItemFace?>?>, t: Throwable) {
+            override fun onFailure(call: Call<ArrayList<RpItemFace?>?>, t: Throwable) {
                 Log.d(TAG, "onFailure: Error: " + t.message)
                 AppProgressBar.hideMessageProgress()
             }
@@ -494,6 +501,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             ).show()
                             AppProgressBar.hideMessageProgress()
                         }
+                    } else {
+                        AppProgressBar.hideMessageProgress()
+                        Toast.makeText(context, "Face Download Failed!", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -511,19 +521,47 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun mLoad(string: String): Bitmap? {
         Log.d(TAG, "mLoad: Loading...$string")
-        val url: URL = mStringToURL(string)!!
-        val connection: HttpURLConnection?
-        try {
-            connection = url.openConnection() as HttpURLConnection
-            connection.connect()
-            val inputStream: InputStream = connection.inputStream
-            val bufferedInputStream = BufferedInputStream(inputStream)
-            return BitmapFactory.decodeStream(bufferedInputStream)
-        } catch (e: IOException) {
-            e.printStackTrace()
-            Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
-        }
-        return null
+        //val url: URL = mStringToURL(string)!!
+//        val connection: HttpURLConnection?
+//        try {
+//            connection = url.openConnection() as HttpURLConnection
+//            connection.connect()
+//            val inputStream: InputStream = connection.inputStream
+//            val bufferedInputStream = BufferedInputStream(inputStream)
+//            return BitmapFactory.decodeStream(bufferedInputStream)
+//        } catch (e: IOException) {
+//            e.printStackTrace()
+//            Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
+//        }
+        //AppProgressBar.hideMessageProgress()
+        //return null
+
+//        return Glide.with(context!!)
+//            .asBitmap()
+//            .load(string)
+//            .into(object : CustomTarget<Bitmap?>() {
+//                override fun onResourceReady(
+//                    resource: Bitmap,
+//                    @Nullable transition: Transition<in Bitmap?>?
+//                ) {
+//                }
+//
+//                override fun onLoadCleared(@Nullable placeholder: Drawable?) {}
+//            })
+        return Glide.with(applicationContext).asBitmap().load(string).submit(120, 120).get();
+
+//        try {
+//            return Glide
+//                .with(context!!)
+//                .asBitmap()
+//                .load(string)
+//                .submit()
+//                .get()
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            Toast.makeText(this, "Error: " + e.printStackTrace(), Toast.LENGTH_LONG).show()
+//        }
+//        return null
     }
 
     private fun mStringToURL(string: String): URL? {

@@ -55,7 +55,7 @@
     <string name="phone_number">মোবাইল নাম্বার</string>
     <string name="password">পাসওয়ার্ড</string>
     <string name="login">লগইন</string>
-    <string name="sync">সিঙ্ক ফেইস </string>
+    <string name="sync">ডাউনলোড ফেইস </string>
     <string name="support">সাপোর্ট</string>
     <string name="log_out">লগ আউট</string>
 
@@ -95,7 +95,7 @@
     <string name="separator">: </string>
 
 
-    <string name="version_code">Version: v2.4.3</string>
+    <string name="version_code">Version: v2.4.4</string>
     <string name="in_time">প্রবেশ সময়</string>
     <string name="out_time">প্রস্থান সময়</string>
     <string name="in">প্রবেশ</string>

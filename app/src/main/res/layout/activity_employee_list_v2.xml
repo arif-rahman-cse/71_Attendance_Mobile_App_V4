@@ -13,14 +13,13 @@
             app:layout_constraintTop_toTopOf="parent" />
 
 
-
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/et_employee_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginTop="12dp"
             android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="12dp"
             android:background="@drawable/bg_rectangle_round_fill"
             android:drawableStart="@drawable/ic_search"
@@ -33,18 +32,45 @@
             app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
 
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_employee_list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:padding="12dp"
-            android:visibility="visible"
             android:clipToPadding="false"
+            android:padding="12dp"
             android:paddingBottom="64dp"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/et_employee_search"
             tools:listitem="@layout/item_view_employee_list" />
+
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/add_new_face_btn"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end" />
+
+            <TextView
+                android:id="@+id/tv_total_emp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="6dp"
+                android:textColor="#fff"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_anchor="@id/fab"
+                app:layout_anchorGravity="center"
+                tools:text="50" />
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -52,11 +78,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:visibility="gone"
             android:layout_marginBottom="16dp"
             android:backgroundTint="@color/green_deep"
             android:contentDescription="@string/add_face"
             android:src="@drawable/ic_add_person"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:tint="@color/white" />
@@ -68,13 +94,13 @@
             android:layout_centerInParent="true"
             android:drawableTop="@drawable/ic_not_found"
             android:drawablePadding="12dp"
-            tools:text="@string/no_scan_history"
             android:textSize="18sp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            tools:text="@string/no_scan_history" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
