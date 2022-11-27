@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
@@ -17,11 +16,8 @@ import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.AbsListView
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
-import androidx.annotation.Nullable
+import android.view.ViewGroup
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -31,8 +27,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.ekattorit.attendance.DBHelper
 import com.ekattorit.attendance.FaceEntity
 import com.ekattorit.attendance.R
@@ -57,6 +51,7 @@ import com.ekattorit.attendance.utils.UserCredentialPreference
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.snackbar.Snackbar
 import com.ttv.face.FaceEngine
 import com.ttv.face.FaceFeatureInfo
 import com.ttv.face.FaceResult
@@ -64,8 +59,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.IOException
-import java.net.MalformedURLException
-import java.net.URL
 import java.text.MessageFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -77,10 +70,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var binding: ActivityMainBinding
     var userCredentialPreference: UserCredentialPreference? = null
     private val scanItemList: ArrayList<ScanItem> = ArrayList()
+    private val failedList: ArrayList<String> = ArrayList()
     private var recentScanAdapter: RecentScanAdapter? = null
     private var mFusedLocationClient: FusedLocationProviderClient? = null
     var isScanFaceCircleClicked = false
     private val LOCATION_PERMISSION_ID = 102
+    private var failedCount : Int = 0
 
 
     companion object {
@@ -110,6 +105,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     //For Convert URL to Bitmap
     private var myExecutor: ExecutorService? = null
     private var myHandler: Handler? = null
+
+    //SnackBar
+    var snackbar : Snackbar? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -374,11 +372,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 closeDrawer()
                 mydb!!.deleteAllUser()
                 mydb!!.getAllUsers()
+                failedCount = 0
                 Log.d(TAG, "onNavigationItemSelected: Local User Size: ${userLists.size}")
-                AppProgressBar.messageProgressFixed(
-                    context,
-                    "সার্ভার থেকে ফেস ডাউনলোড হচ্ছে... কিছু সময় লাগতে পারে। অনুগ্রহ করে অ্যাপ বন্ধ করবেন না।"
-                )
+                //AppProgressBar.messageProgressFixed(context, "সার্ভার থেকে ফেইস ডাউনলোড হচ্ছে... কিছু সময় লাগতে পারে। অনুগ্রহ করে অ্যাপ বন্ধ করবেন না।")
+                showOrHideLoadingSnackBar(true)
                 syncFaceWithServer()
 
                 return true
@@ -415,16 +412,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         Log.d(TAG, "onResponse: Iteration done")
                         //AppProgressBar.hideMessageProgress()
                     } else {
-                        AppProgressBar.hideMessageProgress()
+                        //AppProgressBar.hideMessageProgress()
                     }
                 } else {
-                    AppProgressBar.hideMessageProgress()
+                    //AppProgressBar.hideMessageProgress()
                 }
             }
 
             override fun onFailure(call: Call<ArrayList<RpItemFace?>?>, t: Throwable) {
                 Log.d(TAG, "onFailure: Error: " + t.message)
-                AppProgressBar.hideMessageProgress()
+                //AppProgressBar.hideMessageProgress()
             }
         })
     }
@@ -449,8 +446,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             FaceEngine.getInstance(context)
                                 .extractFeature(bitmap, true, faceResults)
                             //val result: SearchResult = FaceEngine.getInstance(this).searchFaceFeature(FaceFeature(faceResults[0].feature))
-                            val cropRect =
-                                Utils.getBestRect(bitmap.width, bitmap.height, faceResults[0].rect)
+                            val cropRect = Utils.getBestRect(bitmap.width, bitmap.height, faceResults[0].rect)
                             val headImg = Utils.crop(
                                 bitmap,
                                 cropRect.left,
@@ -478,41 +474,47 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             val faceFeatureInfo = FaceFeatureInfo(user_id, faceResults[0].feature)
                             FaceEngine.getInstance(context).registerFaceFeature(faceFeatureInfo)
                             //Log.d(TAG, "insertFaceInLocalDB: Success!!")
-                            Log.d(
-                                TAG,
-                                "insertFaceInLocalDB: Size Local: ${userLists.size} And Size Server: $size"
-                            )
+                            Log.d(TAG, "insertFaceInLocalDB: url: $url")
+                            Log.d(TAG, "insertFaceInLocalDB: Size Local: ${userLists.size} And Size Server: $size Failed: $failedCount" )
 
-                            if (userLists.size >= size) {
-                                AppProgressBar.hideMessageProgress()
-                                AppProgressBar.userActionSuccessPb(
-                                    context,
-                                    "ফেইস সিঙ্ক সফল হয়েছে !"
-                                )
+                            if (userLists.size == size-failedCount) {
+                                Log.d(TAG, "insertFaceInLocalDB: Done")
+                                showOrHideLoadingSnackBar(false)
+                                //AppProgressBar.hideMessageProgress()
+                                if (failedList.isNotEmpty()){
+                                    Log.d(TAG, "insertFaceInLocalDB: ফেইস সিঙ্ক সফল হয়েছে ! ডাউনলোড ব্যর্থ হয়েছে: $failedList")
+                                    AppProgressBar.userActionSuccessPb(context, "ফেইস সিঙ্ক সফল হয়েছে ! ডাউনলোড ব্যর্থ হয়েছে: $failedList" )
+                                }else{
+                                    AppProgressBar.userActionSuccessPb(context, "ফেইস সিঙ্ক সফল হয়েছে !" )
+                                    //Toast.makeText(context, "ফেইস সিঙ্ক সফল হয়েছে !", Toast.LENGTH_SHORT).show()
+                                    Log.d(TAG, "insertFaceInLocalDB: ফেইস সিঙ্ক সফল হয়েছে !")
+                                }
+
                             }
 
 
                         } else {
-                            Log.d(TAG, "insertFaceInLocalDB: No Face Detect!!")
-                            Toast.makeText(
-                                context,
-                                "No Face Detect for employee " + item.empName,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            AppProgressBar.hideMessageProgress()
+                            Log.d(TAG, "insertFaceInLocalDB: No Face Detect fro $item.empName !!")
+                            //Toast.makeText(context, "No Face Detect for employee " + item.empName, Toast.LENGTH_SHORT).show()
+                            failedCount += 1
+                            failedList.add(item.empName)
+                            Log.d(TAG, "insertFaceInLocalDB: Failed List $failedList")
+                            //AppProgressBar.hideMessageProgress()
                         }
                     } else {
-                        AppProgressBar.hideMessageProgress()
-                        Toast.makeText(context, "Face Download Failed!", Toast.LENGTH_SHORT).show()
+                        failedCount += 1
+                        //AppProgressBar.hideMessageProgress()
+                        //Toast.makeText(context, "Some Face Download Failed!", Toast.LENGTH_SHORT).show()
+                        Log.d(TAG, "insertFaceInLocalDB: Some Face Download Failed!")
                     }
                 }
             }
 
         } catch (e: java.lang.Exception) {
             //handle exception
-            AppProgressBar.hideMessageProgress()
+            //AppProgressBar.hideMessageProgress()
             Log.d(TAG, "insertFaceInLocalDB: ${e.message}")
-            Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+            //Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
             e.printStackTrace()
         }
 
@@ -521,57 +523,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun mLoad(string: String): Bitmap? {
         Log.d(TAG, "mLoad: Loading...$string")
-        //val url: URL = mStringToURL(string)!!
-//        val connection: HttpURLConnection?
-//        try {
-//            connection = url.openConnection() as HttpURLConnection
-//            connection.connect()
-//            val inputStream: InputStream = connection.inputStream
-//            val bufferedInputStream = BufferedInputStream(inputStream)
-//            return BitmapFactory.decodeStream(bufferedInputStream)
-//        } catch (e: IOException) {
-//            e.printStackTrace()
-//            Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
-//        }
-        //AppProgressBar.hideMessageProgress()
-        //return null
 
-//        return Glide.with(context!!)
-//            .asBitmap()
-//            .load(string)
-//            .into(object : CustomTarget<Bitmap?>() {
-//                override fun onResourceReady(
-//                    resource: Bitmap,
-//                    @Nullable transition: Transition<in Bitmap?>?
-//                ) {
-//                }
-//
-//                override fun onLoadCleared(@Nullable placeholder: Drawable?) {}
-//            })
-        return Glide.with(applicationContext).asBitmap().load(string).submit(120, 120).get();
-
-//        try {
-//            return Glide
-//                .with(context!!)
-//                .asBitmap()
-//                .load(string)
-//                .submit()
-//                .get()
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            Toast.makeText(this, "Error: " + e.printStackTrace(), Toast.LENGTH_LONG).show()
-//        }
-//        return null
-    }
-
-    private fun mStringToURL(string: String): URL? {
         try {
-            return URL(string)
-        } catch (e: MalformedURLException) {
+            return Glide.with(applicationContext)
+                .asBitmap()
+                .load(string)
+                .centerCrop()
+                .submit(256, 256)
+                .get()
+        }catch (e:Exception){
             e.printStackTrace()
+            Toast.makeText(this, "Error: " + e.printStackTrace(), Toast.LENGTH_LONG).show()
         }
+        //If 512 X 512 crop area does not contain full face then crop it by 1024 X 1024
         return null
+
     }
+
+
+
 
 
     private fun startNewActivity(packageContext: Context, cls: Class<*>) {
@@ -765,7 +735,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         .setConfirmButtonBackgroundColor(Color.RED)
                         .setConfirmClickListener { sweetAlertDialog: SweetAlertDialog ->
                             Log.d(TAG, "onClick: Stay Here!")
-                            //AppProgressBar.showMessageProgress(HomeActivity.this, "লোকেশন রিফ্রেশ হচ্ছে ... ");
                             isScanFaceCircleClicked = true
                             getUserCurrentLocation()
                             sweetAlertDialog.dismissWithAnimation()
@@ -815,5 +784,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onBackPressed() {
         finish()
+    }
+
+    private fun showOrHideLoadingSnackBar(boolean: Boolean){
+        snackbar = Snackbar.make(binding.mainView, "সার্ভার থেকে ফেইস ডাউনলোড হচ্ছে...কিছু সময় লাগতে পারে। অনুগ্রহ করে অ্যাপ বন্ধ করবেন না।", Snackbar.LENGTH_INDEFINITE)
+        val viewGroup = snackbar!!.view.findViewById<View>(com.google.android.material.R.id.snackbar_text).parent as ViewGroup
+        viewGroup.addView(ProgressBar(this))// Or Context if not in Activity
+        if (boolean){
+            snackbar!!.show()
+
+        }else{
+            snackbar!!.dismiss()
+        }
+
     }
 }
