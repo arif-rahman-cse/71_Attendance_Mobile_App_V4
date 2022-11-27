@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:drawableTop="@drawable/ic_not_found"
             android:drawablePadding="12dp"
-            android:text="@string/no_data_found"
+            android:text="@string/no_employee_found"
             android:textAlignment="center"
             android:textSize="18sp"
             android:visibility="gone"

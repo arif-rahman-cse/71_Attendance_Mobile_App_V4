@@ -24,7 +24,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class OnlineEmployeeList : AppCompatActivity() {
+class OnlineEmployeeList : AppCompatActivity(), EmployeeListAdapter.OnOnlineEmployeeItemClickListener {
 
     companion object {
         private const val TAG = "OnlineEmployeeList"
@@ -113,7 +113,8 @@ class OnlineEmployeeList : AppCompatActivity() {
         employeeListAdapter =
             EmployeeListAdapter(
                 this,
-                empDetailsList
+                empDetailsList,
+                this
             )
         binding.rvEmployeeList.adapter = employeeListAdapter
         binding.rvEmployeeList.layoutManager =
@@ -122,5 +123,18 @@ class OnlineEmployeeList : AppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
+    }
+
+    override fun onDeleteClick(empDetails: FaceEntity?, position: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun showErrorMsg() {
+        binding.errorView.visibility = View.VISIBLE
+        binding.errorView.text = getString(R.string.no_employee_found)
+    }
+
+    override fun hideErrorMsg() {
+        binding.errorView.visibility = View.GONE
     }
 }

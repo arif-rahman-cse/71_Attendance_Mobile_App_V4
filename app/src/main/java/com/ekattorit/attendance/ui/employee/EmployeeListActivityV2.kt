@@ -204,5 +204,9 @@ class EmployeeListActivityV2 : AppCompatActivity(), OfflineEmployeeListAdapter.O
         binding.errorView.text = getString(R.string.no_face_attached)
     }
 
+    override fun hideErrorMsg() {
+        binding.errorView.visibility = View.GONE
+    }
+
 
 }

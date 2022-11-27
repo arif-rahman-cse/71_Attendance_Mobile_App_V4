@@ -22,11 +22,14 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
     private static final String TAG = "DailySalesAdapter";
     private Context context;
     private ArrayList<RpEmpDetails> employeeList;
+    private OnOnlineEmployeeItemClickListener onOnlineEmployeeItemClickListener;
 
 
-    public EmployeeListAdapter(Context context, ArrayList<RpEmpDetails> employeeList) {
+    public EmployeeListAdapter(Context context, ArrayList<RpEmpDetails> employeeList,
+                               OnOnlineEmployeeItemClickListener onOnlineEmployeeItemClickListener) {
         this.context = context;
         this.employeeList = employeeList;
+        this.onOnlineEmployeeItemClickListener = onOnlineEmployeeItemClickListener;
     }
 
 
@@ -78,6 +81,18 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
     public void updateList( ArrayList<RpEmpDetails> list){
         employeeList = list;
         notifyDataSetChanged();
+        if (employeeList.size() == 0) {
+            onOnlineEmployeeItemClickListener.showErrorMsg();
+        }else {
+            onOnlineEmployeeItemClickListener.hideErrorMsg();
+        }
+
+    }
+
+    public  interface OnOnlineEmployeeItemClickListener{
+        void onDeleteClick(FaceEntity empDetails, int position);
+        void showErrorMsg();
+        void hideErrorMsg();
     }
 
 

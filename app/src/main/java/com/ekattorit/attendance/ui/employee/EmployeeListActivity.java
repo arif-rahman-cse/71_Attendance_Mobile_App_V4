@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.ekattorit.attendance.FaceEntity;
 import com.ekattorit.attendance.retrofit.RetrofitClient;
 import com.ekattorit.attendance.ui.employee.adapter.EmployeeListAdapter;
 import com.ekattorit.attendance.utils.EmployeeFacePreference;
@@ -33,7 +34,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class EmployeeListActivity extends AppCompatActivity {
+public class EmployeeListActivity extends AppCompatActivity implements  EmployeeListAdapter.OnOnlineEmployeeItemClickListener {
     private static final String TAG = "EmployeeListActivity";
     ActivityEmployeeListBinding binding;
     private UserCredentialPreference userCredentialPreference;
@@ -255,10 +256,24 @@ public class EmployeeListActivity extends AppCompatActivity {
     }
 
     private void initRecyclerView() {
-        employeeListAdapter = new EmployeeListAdapter(this, empDetailsList);
+        employeeListAdapter = new EmployeeListAdapter(this, empDetailsList, this);
         binding.rvEmployeeList.setAdapter(employeeListAdapter);
         binding.rvEmployeeList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
     }
 
 
+    @Override
+    public void onDeleteClick(FaceEntity empDetails, int position) {
+
+    }
+
+    @Override
+    public void showErrorMsg() {
+
+    }
+
+    @Override
+    public void hideErrorMsg() {
+
+    }
 }
