@@ -94,8 +94,7 @@ class AddEmployeeFace : AppCompatActivity() {
     private fun saveNewFace() {
 
         try {
-            val faceResults: MutableList<FaceResult> =
-                FaceEngine.getInstance(this).detectFace(bitmap)
+            val faceResults: MutableList<FaceResult> = FaceEngine.getInstance(this).detectFace(bitmap)
             //val detectResult: List<FaceResult> = FaceEngine.getInstance(this).extractFeature(bitmap, isRegister, faceResults)
             if (faceResults.count() == 1) {
                 var faceAlreadyExists = false
@@ -357,8 +356,7 @@ class AddEmployeeFace : AppCompatActivity() {
             MultipartBody.Part.createFormData("face", photoFileCompress!!.name, requestBody)
 
 
-        val addNewFaceCall =
-            RetrofitClient.getInstance().api.addNewFace(userCredentialPreference!!.userToken,empId, empName, supervisorId, facePart)
+        val addNewFaceCall = RetrofitClient.getInstance().api.addNewFace(userCredentialPreference!!.userToken,empId, empName, supervisorId, facePart)
         addNewFaceCall.enqueue(object : Callback<RpNewFace?> {
             override fun onResponse(
                 call: Call<RpNewFace?>,

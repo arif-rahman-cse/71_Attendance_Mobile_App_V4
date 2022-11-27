@@ -56,7 +56,7 @@
     <string name="phone_number">মোবাইল নাম্বার</string>
     <string name="password">পাসওয়ার্ড</string>
     <string name="login">লগইন</string>
-    <string name="sync">ডাউনলোড ফেইস </string>
+    <string name="sync">ফেইস ডাউনলোড করুন</string>
     <string name="support">সাপোর্ট</string>
     <string name="log_out">লগ আউট</string>
 
