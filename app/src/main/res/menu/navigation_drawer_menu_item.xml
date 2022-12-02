@@ -14,7 +14,7 @@
         <item
             android:id="@+id/id_worker"
             android:icon="@drawable/ic_person"
-            android:title="@string/employee_database" />
+            android:title="@string/employee_list" />
 
 
     </group>
@@ -48,7 +48,7 @@
 
         <item
             android:id="@+id/sync_face"
-            android:icon="@drawable/ic_sync"
+            android:icon="@drawable/ic_download"
             android:title="@string/sync" />
 
         <item

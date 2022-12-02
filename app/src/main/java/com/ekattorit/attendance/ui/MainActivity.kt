@@ -2,6 +2,7 @@ package com.ekattorit.attendance.ui
 
 import android.Manifest
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -17,7 +18,9 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -106,8 +109,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var myExecutor: ExecutorService? = null
     private var myHandler: Handler? = null
 
-    //SnackBar
-    var snackbar : Snackbar? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -254,8 +255,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     private fun initRecyclerView() {
-        recentScanAdapter =
-            RecentScanAdapter(this, scanItemList, userCredentialPreference!!.attendanceTimeDiff)
+        recentScanAdapter = RecentScanAdapter(this, scanItemList, userCredentialPreference!!.attendanceTimeDiff)
         binding.rvDailySales.adapter = recentScanAdapter
         linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.rvDailySales.layoutManager = linearLayoutManager
@@ -276,11 +276,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         recentScanCall.enqueue(object : Callback<RpRecentScan?> {
             override fun onResponse(call: Call<RpRecentScan?>, response: Response<RpRecentScan?>) {
                 binding.progressBar.visibility = View.GONE
-                Log.d(TAG, "onResponse: CODE: " + response.code())
+                //Log.d(TAG, "onResponse: CODE: " + response.code())
                 //Log.d(TAG, "onResponse: "+response.body().getResults().get(0).getFirstScan());
                 if (response.isSuccessful && response.code() == 200) {
                     // scanItemList.clear()
-
                     if (response.body() != null) {
 
                         Log.d(TAG, "onResponse: Not Null")
@@ -373,10 +372,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 mydb!!.deleteAllUser()
                 mydb!!.getAllUsers()
                 failedCount = 0
+                failedList.clear()
+                onDeleteClick()
                 Log.d(TAG, "onNavigationItemSelected: Local User Size: ${userLists.size}")
-                //AppProgressBar.messageProgressFixed(context, "সার্ভার থেকে ফেইস ডাউনলোড হচ্ছে... কিছু সময় লাগতে পারে। অনুগ্রহ করে অ্যাপ বন্ধ করবেন না।")
-                showOrHideLoadingSnackBar(true)
-                syncFaceWithServer()
 
                 return true
             }
@@ -473,6 +471,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             userLists.add(_face)
                             val faceFeatureInfo = FaceFeatureInfo(user_id, faceResults[0].feature)
                             FaceEngine.getInstance(context).registerFaceFeature(faceFeatureInfo)
+                            //"$size  টির মধ্যে ${userLists.size} ".also { binding.tvMessagePercent.text = it }
+                            //"$size  টির মধ্যে ${userLists.size} ".also { binding.tvMessagePercent.text = it }
+                            binding.tvMessagePercent.text = "$size টির মধ্যে ${userLists.size} টি"
                             //Log.d(TAG, "insertFaceInLocalDB: Success!!")
                             Log.d(TAG, "insertFaceInLocalDB: url: $url")
                             Log.d(TAG, "insertFaceInLocalDB: Size Local: ${userLists.size} And Size Server: $size Failed: $failedCount" )
@@ -481,11 +482,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 Log.d(TAG, "insertFaceInLocalDB: Done")
                                 showOrHideLoadingSnackBar(false)
                                 //AppProgressBar.hideMessageProgress()
-                                if (failedList.isNotEmpty()){
-                                    Log.d(TAG, "insertFaceInLocalDB: ফেইস সিঙ্ক সফল হয়েছে ! ডাউনলোড ব্যর্থ হয়েছে: $failedList")
-                                    AppProgressBar.userActionSuccessPb(context, "ফেইস সিঙ্ক সফল হয়েছে ! ডাউনলোড ব্যর্থ হয়েছে: $failedList" )
+                                if (failedCount > 0){
+                                    Log.d(TAG, "insertFaceInLocalDB: ফেইস ডাউনলোড সফল হয়েছে ! ডাউনলোড ব্যর্থ হয়েছে: $failedList")
+                                    AppProgressBar.userActionSuccessPb(context, "ফেইস ডাউনলোড সফল হয়েছে ! ডাউনলোড ব্যর্থ হয়েছে: $failedList" )
                                 }else{
-                                    AppProgressBar.userActionSuccessPb(context, "ফেইস সিঙ্ক সফল হয়েছে !" )
+                                    AppProgressBar.userActionSuccessPb(context, "ফেইস ডাউনলোড সফল হয়েছে !" )
                                     //Toast.makeText(context, "ফেইস সিঙ্ক সফল হয়েছে !", Toast.LENGTH_SHORT).show()
                                     Log.d(TAG, "insertFaceInLocalDB: ফেইস সিঙ্ক সফল হয়েছে !")
                                 }
@@ -503,6 +504,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
                     } else {
                         failedCount += 1
+                        failedList.add(item.empName)
                         //AppProgressBar.hideMessageProgress()
                         //Toast.makeText(context, "Some Face Download Failed!", Toast.LENGTH_SHORT).show()
                         Log.d(TAG, "insertFaceInLocalDB: Some Face Download Failed!")
@@ -533,7 +535,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .get()
         }catch (e:Exception){
             e.printStackTrace()
-            Toast.makeText(this, "Error: " + e.printStackTrace(), Toast.LENGTH_LONG).show()
+            Log.d(TAG, "mLoad: Image failed"+ e.printStackTrace())
+            //Toast.makeText(this, "Error: " + e.printStackTrace(), Toast.LENGTH_LONG).show()
         }
         //If 512 X 512 crop area does not contain full face then crop it by 1024 X 1024
         return null
@@ -787,15 +790,41 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun showOrHideLoadingSnackBar(boolean: Boolean){
-        snackbar = Snackbar.make(binding.mainView, "সার্ভার থেকে ফেইস ডাউনলোড হচ্ছে...কিছু সময় লাগতে পারে। অনুগ্রহ করে অ্যাপ বন্ধ করবেন না।", Snackbar.LENGTH_INDEFINITE)
-        val viewGroup = snackbar!!.view.findViewById<View>(com.google.android.material.R.id.snackbar_text).parent as ViewGroup
-        viewGroup.addView(ProgressBar(this))// Or Context if not in Activity
+
         if (boolean){
-            snackbar!!.show()
+            Log.d(TAG, "showOrHideLoadingSnackBar: Show")
+            binding.syncFaceMsgLo.visibility = View.VISIBLE
+            binding.tvSyncMessage.text = "সার্ভার থেকে ফেইস ডাউনলোড হচ্ছে...কিছু সময় লাগতে পারে। অনুগ্রহ করে অ্যাপ বন্ধ করবেন না।"
+            binding.tvMessagePercent.text = "গণনা করা হচ্ছে..."
 
         }else{
-            snackbar!!.dismiss()
+            Log.d(TAG, "showOrHideLoadingSnackBar: Hide")
+            binding.syncFaceMsgLo.visibility = View.GONE
+
         }
 
+    }
+
+    fun onDeleteClick() {
+        val alertDialog = AlertDialog.Builder(this).create()
+        alertDialog.setTitle(" ফেইস ডাউনলোড করুন !")
+        alertDialog.setMessage("আপনি কি ফেস ডাউনলোড করার বিষয়ে নিশ্চিত? অনুগ্রহ করে স্থির ইন্টারনেট সংযোগ ব্যবহার করুন । ")
+        alertDialog.setIcon(R.drawable.ic_download)
+        alertDialog.setButton(
+            AlertDialog.BUTTON_NEGATIVE, "হ্যাঁ"
+        ) { dialog: DialogInterface?, which: Int ->
+            showOrHideLoadingSnackBar(true, )
+            syncFaceWithServer()
+        }
+        alertDialog.setButton(
+            AlertDialog.BUTTON_POSITIVE,
+            "না "
+        ) { dialog: DialogInterface?, which: Int ->
+            Log.d(TAG, "didRemoveBtnPressed: Disagreed!")
+            alertDialog.dismiss()
+        }
+
+        alertDialog.setCancelable(false)
+        alertDialog.show()
     }
 }

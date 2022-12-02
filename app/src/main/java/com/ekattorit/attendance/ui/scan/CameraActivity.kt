@@ -173,7 +173,7 @@ class CameraActivity : AppCompatActivity() {
             "$msg এর উপস্থিতি নিশ্চিত হয়েছে।",
             Snackbar.LENGTH_INDEFINITE
         )
-            .setAction("OK") {
+            .setAction("ঠিক আছে") {
 
             }
         bar.show()
@@ -311,11 +311,9 @@ class CameraActivity : AppCompatActivity() {
         }
 
         override fun invoke(frame: Frame) {
-            val faceResults: List<FaceResult> = FaceEngine.getInstance(appCtx)
-                .detectFace(frame.image, frame.size.width, frame.size.height)
+            val faceResults: List<FaceResult> = FaceEngine.getInstance(appCtx).detectFace(frame.image, frame.size.width, frame.size.height)
             if (faceResults.isNotEmpty()) {
-                FaceEngine.getInstance(appCtx)
-                    .livenessProcess(frame.image, frame.size.width, frame.size.height, faceResults)
+                FaceEngine.getInstance(appCtx).livenessProcess(frame.image, frame.size.width, frame.size.height, faceResults)
                 if (frThreadQueue!!.remainingCapacity() > 0) {
                     frExecutor!!.execute(
                         FaceRecognizeRunnable(
@@ -357,10 +355,8 @@ class CameraActivity : AppCompatActivity() {
 
             var exists = false
             try {
-                FaceEngine.getInstance(appCtx)
-                    .extractFeature(nv21Data, width, height, false, faceResults)
-                val result: SearchResult = FaceEngine.getInstance(appCtx)
-                    .searchFaceFeature(FaceFeature(faceResults[0].feature))
+                FaceEngine.getInstance(appCtx).extractFeature(nv21Data, width, height, false, faceResults)
+                val result: SearchResult = FaceEngine.getInstance(appCtx).searchFaceFeature(FaceFeature(faceResults[0].feature))
                 if (result.maxSimilar > 0.8f) {
                     for (user in MainActivity.userLists) {
                         if (user.user_id == result.faceFeatureInfo!!.searchId && faceResults[0].liveness == 1) {
