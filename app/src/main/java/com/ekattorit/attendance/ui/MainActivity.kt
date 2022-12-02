@@ -255,8 +255,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     private fun initRecyclerView() {
-        recentScanAdapter =
-            RecentScanAdapter(this, scanItemList, userCredentialPreference!!.attendanceTimeDiff)
+        recentScanAdapter = RecentScanAdapter(this, scanItemList, userCredentialPreference!!.attendanceTimeDiff)
         binding.rvDailySales.adapter = recentScanAdapter
         linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.rvDailySales.layoutManager = linearLayoutManager
@@ -277,11 +276,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         recentScanCall.enqueue(object : Callback<RpRecentScan?> {
             override fun onResponse(call: Call<RpRecentScan?>, response: Response<RpRecentScan?>) {
                 binding.progressBar.visibility = View.GONE
-                Log.d(TAG, "onResponse: CODE: " + response.code())
+                //Log.d(TAG, "onResponse: CODE: " + response.code())
                 //Log.d(TAG, "onResponse: "+response.body().getResults().get(0).getFirstScan());
                 if (response.isSuccessful && response.code() == 200) {
                     // scanItemList.clear()
-
                     if (response.body() != null) {
 
                         Log.d(TAG, "onResponse: Not Null")
