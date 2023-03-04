@@ -46,7 +46,7 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         RpEmpDetails empDetails = employeeList.get(position);
 
-        holder.binding.tvEmpName.setText(empDetails.getEmpName());
+        holder.binding.tvEmpName.setText(empDetails.getEmpNameEn());
         holder.binding.tvEmpId.setText(empDetails.getEmpId());
         holder.binding.tvEmpAddress.setText(empDetails.getAddress());
 

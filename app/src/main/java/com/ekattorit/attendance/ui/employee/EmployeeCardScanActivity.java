@@ -159,13 +159,13 @@ public class EmployeeCardScanActivity extends AppCompatActivity {
                         }
 
                         scanIntent.putExtra(AppConfig.EMP_ID, empDetails.getEmpId());
-                        scanIntent.putExtra(AppConfig.EMP_NAME, empDetails.getEmpName());
+                        scanIntent.putExtra(AppConfig.EMP_NAME, empDetails.getEmpNameEn());
                         scanIntent.putExtra(AppConfig.DESIGNATION, empDetails.getDesignation());
-                        scanIntent.putExtra(AppConfig.WORD_NO, empDetails.getWordNo());
-                        scanIntent.putExtra(AppConfig.PHONE, empDetails.getMobile());
+                        scanIntent.putExtra(AppConfig.WORD_NO, empDetails.getWardNo());
+                        scanIntent.putExtra(AppConfig.PHONE, empDetails.getMobileNumber());
                         scanIntent.putExtra(AppConfig.EMP_IMG, empDetails.getEmployeeImg());
-                        scanIntent.putExtra(AppConfig.NID, empDetails.getNid());
-                        scanIntent.putExtra(AppConfig.BLOOD_GROUP, empDetails.getBlood_group());
+                        scanIntent.putExtra(AppConfig.NID, empDetails.getNidBrn());
+                        scanIntent.putExtra(AppConfig.BLOOD_GROUP, empDetails.getBloodGroup());
                         scanIntent.putExtra(AppConfig.ADDRESS, empDetails.getAddress());
                         finish();
                         startActivity(scanIntent);
@@ -176,6 +176,11 @@ public class EmployeeCardScanActivity extends AppCompatActivity {
 
                 } else if (response.code() == 404) {
                     Log.d(TAG, "onResponse: Code: " + response.code());
+                    try {
+                        Log.d(TAG, "onResponse: Error: " + response.errorBody().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     Gson gson = new GsonBuilder().create();
                     RpError loginError;
                     try {

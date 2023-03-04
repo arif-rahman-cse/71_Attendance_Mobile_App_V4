@@ -4,23 +4,11 @@ import com.google.gson.annotations.SerializedName;
 
 public class Data{
 
+	@SerializedName("second_in_time")
+	private String secondInTime;
+
 	@SerializedName("address")
 	private String address;
-
-	@SerializedName("scan_status")
-	private boolean scanStatus;
-
-	@SerializedName("business")
-	private String business;
-
-	@SerializedName("first_scan")
-	private String firstScan;
-
-	@SerializedName("last_scan")
-	private String lastScan;
-
-	@SerializedName("shift")
-	private Object shift;
 
 	@SerializedName("latitude")
 	private String latitude;
@@ -37,20 +25,23 @@ public class Data{
 	@SerializedName("attendance_count")
 	private String attendanceCount;
 
-	@SerializedName("scan_img")
-	private Object scanImg;
-
-	@SerializedName("word_no")
-	private int wordNo;
+	@SerializedName("first_out_time")
+	private Object firstOutTime;
 
 	@SerializedName("updated_at")
 	private String updatedAt;
 
+	@SerializedName("first_in_time")
+	private Object firstInTime;
+
+	@SerializedName("second_out_time")
+	private Object secondOutTime;
+
 	@SerializedName("id")
 	private int id;
 
-	@SerializedName("user")
-	private int user;
+	@SerializedName("attendance_status")
+	private boolean attendanceStatus;
 
 	@SerializedName("longitude")
 	private String longitude;
@@ -58,28 +49,12 @@ public class Data{
 	@SerializedName("scan_by")
 	private int scanBy;
 
+	public String getSecondInTime(){
+		return secondInTime;
+	}
+
 	public String getAddress(){
 		return address;
-	}
-
-	public boolean isScanStatus(){
-		return scanStatus;
-	}
-
-	public String getBusiness(){
-		return business;
-	}
-
-	public String getFirstScan(){
-		return firstScan;
-	}
-
-	public String getLastScan(){
-		return lastScan;
-	}
-
-	public Object getShift(){
-		return shift;
 	}
 
 	public String getLatitude(){
@@ -102,24 +77,28 @@ public class Data{
 		return attendanceCount;
 	}
 
-	public Object getScanImg(){
-		return scanImg;
-	}
-
-	public int getWordNo(){
-		return wordNo;
+	public Object getFirstOutTime(){
+		return firstOutTime;
 	}
 
 	public String getUpdatedAt(){
 		return updatedAt;
 	}
 
+	public Object getFirstInTime(){
+		return firstInTime;
+	}
+
+	public Object getSecondOutTime(){
+		return secondOutTime;
+	}
+
 	public int getId(){
 		return id;
 	}
 
-	public int getUser(){
-		return user;
+	public boolean isAttendanceStatus(){
+		return attendanceStatus;
 	}
 
 	public String getLongitude(){

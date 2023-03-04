@@ -47,30 +47,83 @@ public class RecentScanAdapter extends RecyclerView.Adapter<RecentScanAdapter.My
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         ScanItem scanItem = scanItemList.get(position);
         holder.binding.tvCardNo.setText(scanItem.getEmployee().getEmpId());
-        holder.binding.tvEmployeeName.setText(scanItem.getEmployee().getEmpName());
+        holder.binding.tvEmployeeName.setText(scanItem.getEmployee().getEmpNameEn());
 
-        String inTime = scanItem.getFirstScan();
-        String outTime = scanItem.getLastScan();
+        String inTime = scanItem.getFirstInTime();
+        String outTime = scanItem.getFirstOutTime();
 
 
-        if (inTime != null && outTime != null) {
+
+
+        if (inTime != null) {
 
             try {
-                holder.binding.tvFirstScan.setText(DateTimeFormat.timeFormat(inTime));
+                holder.binding.tvFirstInScan.setText(DateTimeFormat.timeFormat(inTime));
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+
+        } else {
+            holder.binding.tvFirstInScan.setText("-");
+            //.binding.tvFirstOutScan.setText("-");
+        }
+
+        if (outTime != null && inTime != null) {
+
+            try {
+                //holder.binding.tvFirstOutScan.setText(DateTimeFormat.timeFormat(outTime));
 
                 if (inTime.substring(0, 5).equals(outTime.substring(0, 5))) {
                     holder.binding.mainView.setBackgroundColor(context.getResources().getColor(R.color.yellow_light));
-                    holder.binding.tvLastScan.setText("-");
+                    holder.binding.tvFirstOutScan.setText("-");
 
                 } else {
                     holder.binding.mainView.setBackgroundColor(0);
-                    holder.binding.tvLastScan.setText(DateTimeFormat.timeFormat(outTime));
+                    holder.binding.tvFirstOutScan.setText(DateTimeFormat.timeFormat(outTime));
                 }
 
-                if (DateTimeFormat.timeDiff(inTime, outTime) >= timeDiff) {
-                    holder.binding.ivStatus.setImageResource(R.drawable.ic_verified);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+
+        } else {
+            holder.binding.tvFirstOutScan.setText("-");
+            //.binding.tvFirstOutScan.setText("-");
+        }
+
+        String secondInTime = scanItem.getSecondInTime();
+        String secondOutTime = scanItem.getSecondOutTime();
+
+        if (secondInTime != null) {
+
+            try {
+                holder.binding.tvSecondInScan.setText(DateTimeFormat.timeFormat(secondInTime));
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+
+        } else {
+            holder.binding.tvSecondInScan.setText("-");
+            //.binding.tvFirstOutScan.setText("-");
+        }
+
+        if (secondOutTime != null && secondInTime != null) {
+
+            try {
+                //holder.binding.tvSecondOutScan.setText(DateTimeFormat.timeFormat(secondOutTime));
+
+                if (secondInTime.substring(0, 5).equals(secondOutTime.substring(0, 5))) {
+                    holder.binding.mainView.setBackgroundColor(context.getResources().getColor(R.color.yellow_light));
+                    holder.binding.tvSecondOutScan.setText("-");
+
                 } else {
-                    holder.binding.ivStatus.setImageResource(R.drawable.ic_round_warning);
+                    holder.binding.mainView.setBackgroundColor(0);
+                    holder.binding.tvSecondOutScan.setText(DateTimeFormat.timeFormat(secondOutTime));
                 }
 
 
@@ -80,9 +133,10 @@ public class RecentScanAdapter extends RecyclerView.Adapter<RecentScanAdapter.My
 
 
         } else {
-            holder.binding.tvFirstScan.setText("-");
-            holder.binding.tvLastScan.setText("-");
+            holder.binding.tvSecondOutScan.setText("-");
+            //.binding.tvFirstOutScan.setText("-");
         }
+
     }
 
 

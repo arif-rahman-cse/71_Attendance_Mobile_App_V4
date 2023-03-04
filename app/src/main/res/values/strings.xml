@@ -99,8 +99,10 @@
     <string name="version_code">Version: v2.4.5</string>
     <string name="in_time">প্রবেশ সময়</string>
     <string name="out_time">প্রস্থান সময়</string>
-    <string name="in">প্রবেশ</string>
-    <string name="out">প্রস্থান</string>
+    <string name="first_in">১ম প্রবেশ</string>
+    <string name="first_out">১ম প্রস্থান</string>
+    <string name="second_in">২য় প্রবেশ</string>
+    <string name="second_out">২য় প্রস্থান</string>
     <string name="search">অনুসন্ধান…</string>
 
 

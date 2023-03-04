@@ -236,11 +236,11 @@ public class SingleRangeAttendance extends AppCompatActivity {
                     if (!response.body().isEmpty()) {
 
                         for (int i = 0; i < response.body().size(); i++) {
-                            Log.d(TAG, "onResponse: WordNo: " + response.body().get(i).getWordNo());
+                            //Log.d(TAG, "onResponse: WordNo: " + response.body().get(i).getWardNo());
                             map = new HashMap<>();
                             map.put("EmployeeId", response.body().get(i).getEmpId());
                             employeeMap.add(map);
-                            employeeList.add(response.body().get(i).getEmpId() + " - " + response.body().get(i).getEmpName());
+                            employeeList.add(response.body().get(i).getEmpId() + " - " + response.body().get(i).getEmpNameEn());
 
                         }
 

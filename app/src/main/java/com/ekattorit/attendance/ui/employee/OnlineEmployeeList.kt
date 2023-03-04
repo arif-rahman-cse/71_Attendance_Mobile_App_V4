@@ -70,7 +70,7 @@ class OnlineEmployeeList : AppCompatActivity(), EmployeeListAdapter.OnOnlineEmpl
         val temp: ArrayList<RpEmpDetails> =ArrayList()
 
         for (item in empDetailsList) {
-            if (item.empName.lowercase(Locale.ROOT).contains(query) || item.empId.lowercase(Locale.ROOT).contains(query)) {
+            if (item.empNameEn.lowercase(Locale.ROOT).contains(query) || item.empId.lowercase(Locale.ROOT).contains(query)) {
                 temp.add(item)
             }
         }

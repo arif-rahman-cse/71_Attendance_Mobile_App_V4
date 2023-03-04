@@ -4,50 +4,68 @@ import com.google.gson.annotations.SerializedName;
 
 public class RpEmpDetails{
 
+	@SerializedName("nid_brn")
+	private String nidBrn;
+
+	@SerializedName("designation_name")
+	private int designationName;
+
 	@SerializedName("address")
 	private String address;
 
-	@SerializedName("business")
-	private String business;
+	@SerializedName("belongs_to")
+	private String belongsTo;
+
+	@SerializedName("emp_name_en")
+	private String empNameEn;
+
+	@SerializedName("ward_no")
+	private String wardNo;
+
+	@SerializedName("gender")
+	private String gender;
+
+	@SerializedName("is_resigned")
+	private boolean isResigned;
 
 	@SerializedName("join_date")
 	private String joinDate;
 
-	@SerializedName("emp_name")
-	private String empName;
-
-	@SerializedName("mobile")
-	private String mobile;
-
-	@SerializedName("nid")
-	private String nid;
+	@SerializedName("mother_name")
+	private Object motherName;
 
 	@SerializedName("created_at")
 	private String createdAt;
 
-	@SerializedName("emp_father_name")
-	private String empFatherName;
+	@SerializedName("supervisor_name")
+	private int supervisorName;
+
+	@SerializedName("emp_name_bn")
+	private String empNameBn;
 
 	@SerializedName("employee_img")
 	private String employeeImg;
 
-	@SerializedName("word_no")
-	private String wordNo;
+	@SerializedName("driving_license")
+	private Object drivingLicense;
 
 	@SerializedName("updated_at")
 	private String updatedAt;
 
+	@SerializedName("father_name")
+	private Object fatherName;
+
 	@SerializedName("resign_date")
 	private Object resignDate;
 
-	@SerializedName("location")
-	private Object location;
+	@SerializedName("blood_group")
+	private String bloodGroup;
 
 	@SerializedName("designation")
 	private String designation;
 
-	@SerializedName("user")
-	private int user;
+	@SerializedName("mobile_number")
+	private String mobileNumber;
 
 	@SerializedName("emp_id")
 	private String empId;
@@ -55,91 +73,88 @@ public class RpEmpDetails{
 	@SerializedName("status")
 	private boolean status;
 
-	@SerializedName("attendance_type")
-	private boolean attendanceType;
+	public String getNidBrn(){
+		return nidBrn;
+	}
 
-
-	@SerializedName("emp_name_en")
-	private String emp_name_en;
-
-	@SerializedName("blood_group")
-	private String blood_group;
-
-	@SerializedName("is_face_added")
-	private boolean is_face_added;
-
-	@SerializedName("is_finger_added")
-	private boolean is_finger_added;
-
-	@SerializedName("gender")
-	private String gender;
-
-	@SerializedName("date_of_birth")
-	private String date_of_birth;
-
-	@SerializedName("proxy_supervisor")
-	private int proxy_supervisor;
-
-
+	public int getDesignationName(){
+		return designationName;
+	}
 
 	public String getAddress(){
 		return address;
 	}
 
-	public String getBusiness(){
-		return business;
+	public String getBelongsTo(){
+		return belongsTo;
+	}
+
+	public String getEmpNameEn(){
+		return empNameEn;
+	}
+
+	public String getWardNo(){
+		return wardNo;
+	}
+
+	public String getGender(){
+		return gender;
+	}
+
+	public boolean isIsResigned(){
+		return isResigned;
 	}
 
 	public String getJoinDate(){
 		return joinDate;
 	}
 
-	public String getEmpName(){
-		return empName;
-	}
-
-	public String getMobile(){
-		return mobile;
-	}
-
-	public String getNid(){
-		return nid;
+	public Object getMotherName(){
+		return motherName;
 	}
 
 	public String getCreatedAt(){
 		return createdAt;
 	}
 
-	public String getEmpFatherName(){
-		return empFatherName;
+	public int getSupervisorName(){
+		return supervisorName;
+	}
+
+	public String getEmpNameBn(){
+		return empNameBn;
 	}
 
 	public String getEmployeeImg(){
 		return employeeImg;
 	}
 
-	public String getWordNo(){
-		return wordNo;
+	public Object getDrivingLicense(){
+		return drivingLicense;
 	}
 
 	public String getUpdatedAt(){
 		return updatedAt;
 	}
 
+	public Object getFatherName(){
+		return fatherName;
+	}
+
 	public Object getResignDate(){
 		return resignDate;
 	}
 
-	public Object getLocation(){
-		return location;
+	public String getBloodGroup(){
+		return bloodGroup;
 	}
 
 	public String getDesignation(){
 		return designation;
 	}
 
-	public int getUser(){
-		return user;
+	public String getMobileNumber(){
+		return mobileNumber;
 	}
 
 	public String getEmpId(){
@@ -149,36 +164,4 @@ public class RpEmpDetails{
 	public boolean isStatus(){
 		return status;
 	}
-
-	public boolean isAttendanceType(){
-		return attendanceType;
-	}
-
-    public String getEmp_name_en() {
-        return emp_name_en;
-    }
-
-    public String getBlood_group() {
-        return blood_group;
-    }
-
-    public boolean isIs_face_added() {
-        return is_face_added;
-    }
-
-    public boolean isIs_finger_added() {
-        return is_finger_added;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public String getDate_of_birth() {
-        return date_of_birth;
-    }
-
-    public int getProxy_supervisor() {
-        return proxy_supervisor;
-    }
 }

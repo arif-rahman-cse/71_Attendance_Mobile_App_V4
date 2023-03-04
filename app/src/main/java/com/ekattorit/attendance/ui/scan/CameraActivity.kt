@@ -31,6 +31,7 @@ import io.fotoapparat.Fotoapparat
 import io.fotoapparat.parameter.Resolution
 import io.fotoapparat.preview.Frame
 import io.fotoapparat.selector.back
+import io.fotoapparat.selector.front
 import io.fotoapparat.util.FrameProcessor
 import io.fotoapparat.view.CameraView
 import retrofit2.Call
@@ -135,8 +136,8 @@ class CameraActivity : AppCompatActivity() {
                 //Log.d(TAG, "onResponse: data: "+ response.body().toString());
                 if (response.code() == 201 || response.code() == 200) {
                     assert(response.body() != null)
-                    val employeeName: String = response.body()!!.employeeName
-                    showConfirmation(employeeName)
+                    val successMessage: String = response.body()!!.message
+                    showConfirmation(successMessage)
                 } else {
                     try {
                         Log.d(TAG, "onResponse: Code: " + response.errorBody()!!.string())
@@ -169,8 +170,7 @@ class CameraActivity : AppCompatActivity() {
     private fun showConfirmation(msg: String) {
 
         val bar = Snackbar.make(
-            binding.mainView,
-            "$msg এর উপস্থিতি নিশ্চিত হয়েছে।",
+            binding.mainView, msg,
             Snackbar.LENGTH_INDEFINITE
         )
             .setAction("ঠিক আছে") {

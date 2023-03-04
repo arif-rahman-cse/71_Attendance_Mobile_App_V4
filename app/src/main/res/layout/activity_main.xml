@@ -171,19 +171,19 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:layout_weight="1.5"
+                            android:layout_weight="1"
                             android:text="নাম "
                             android:textAlignment="center"
                             android:textSize="12sp"
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/tv_first_scan"
+                            android:id="@+id/tv_first_in_scan"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:layout_weight="1"
-                            android:text="@string/in"
+                            android:layout_weight=".5"
+                            android:text="@string/first_in"
                             android:textAlignment="center"
                             android:textColor="@color/green_deep"
                             android:textSize="12sp"
@@ -191,13 +191,38 @@
 
 
                         <TextView
-                            android:id="@+id/tv_last_scan"
+                            android:id="@+id/tv_first_out_scan"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:layout_weight="1"
+                            android:layout_weight=".5"
                             android:gravity="center"
-                            android:text="@string/out"
+                            android:text="@string/first_out"
+                            android:textAlignment="center"
+                            android:textColor="@color/red"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tv_second_in_scan"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_weight=".5"
+                            android:text="@string/second_in"
+                            android:textAlignment="center"
+                            android:textColor="@color/green_deep"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+
+                        <TextView
+                            android:id="@+id/tv_second_out_scan"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_weight=".5"
+                            android:gravity="center"
+                            android:text="@string/second_out"
                             android:textAlignment="center"
                             android:textColor="@color/red"
                             android:textSize="12sp"

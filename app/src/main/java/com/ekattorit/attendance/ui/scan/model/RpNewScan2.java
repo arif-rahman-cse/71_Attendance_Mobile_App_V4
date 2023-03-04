@@ -10,8 +10,8 @@ public class RpNewScan2{
 	@SerializedName("employee_name")
 	private String employeeName;
 
-	@SerializedName("massage")
-	private String massage;
+	@SerializedName("message")
+	private String message;
 
 	public Data getData(){
 		return data;
@@ -21,7 +21,7 @@ public class RpNewScan2{
 		return employeeName;
 	}
 
-	public String getMassage() {
-		return massage;
+	public String getMessage() {
+		return message;
 	}
 }

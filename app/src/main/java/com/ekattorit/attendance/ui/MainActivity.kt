@@ -410,7 +410,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         Log.d(TAG, "onResponse: Iteration done")
                         //AppProgressBar.hideMessageProgress()
                     } else {
-                        //AppProgressBar.hideMessageProgress()
+                        showOrHideLoadingSnackBar(false)
+                        AppProgressBar.userAttentionPb(context, "কোন ফেইস পাওয়া যায়নি!")
                     }
                 } else {
                     //AppProgressBar.hideMessageProgress()

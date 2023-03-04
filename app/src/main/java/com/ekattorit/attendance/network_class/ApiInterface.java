@@ -76,7 +76,7 @@ public interface ApiInterface {
             @Path("user_id") int userId
     );
 
-    @GET("employee/details/{employee_id}")
+    @GET("moshok-employee/details/{employee_id}")
     Call<RpEmpDetails> getEmpDetails(
             @Header("Authorization") String token,
             @Path("employee_id") String empId
@@ -89,7 +89,7 @@ public interface ApiInterface {
             @Path("user_id") int userId
     );
 
-    @GET("recent_attendance/list")
+    @GET("moshok-recent_attendance/list")
     Call<RpRecentScan> getRecentScan(
             @Header("Authorization") String token,
             @Query("page") int pageNumber,
@@ -122,7 +122,7 @@ public interface ApiInterface {
 
 
     @Multipart
-    @POST("attendance/new")
+    @POST("moshok-attendance/new")
     Call<RpNewScan2> addNewAttendance(
             @Header("Authorization") String token,
             //@Part("business") String business_id,

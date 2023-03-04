@@ -4,14 +4,14 @@ import com.google.gson.annotations.SerializedName;
 
 public class Employee{
 
-	@SerializedName("emp_name")
-	private String empName;
+	@SerializedName("emp_name_en")
+	private String empNameEn;
 
 	@SerializedName("emp_id")
 	private String empId;
 
-	public String getEmpName(){
-		return empName;
+	public String getEmpNameEn(){
+		return empNameEn;
 	}
 
 	public String getEmpId(){
