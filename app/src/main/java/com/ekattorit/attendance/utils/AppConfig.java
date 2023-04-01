@@ -2,9 +2,9 @@ package com.ekattorit.attendance.utils;
 
 public class AppConfig {
     //public static String Base_URL_ONLINE ="https://dnccatt.ekattorit.com.bd/api/v1/";
-    public static String Base_URL_ONLINE ="http://45.114.85.182:8090/api/v1/";
+    public static String Base_URL_ONLINE ="https://apps.multiinternationalbd.com/api/v1/";
     //public static String Base_URL_ONLINE_IMG ="https://dnccatt.ekattorit.com.bd";
-    public static String Base_URL_ONLINE_IMG ="http://45.114.85.182:8090";
+    public static String Base_URL_ONLINE_IMG ="https://apps.multiinternationalbd.com";
     //public static String Base_URL_ONLINE ="http://api.premiercement.com:89/api/";
     //public static String Base_URL_ONLINE_IMG ="http://api.premiercement.com:89";
     public static String Base_URL_DEV ="http://45.114.85.182:8080/api/";

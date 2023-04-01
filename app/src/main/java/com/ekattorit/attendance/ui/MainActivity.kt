@@ -237,7 +237,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (requestCode == CAMERA_PERMISSION_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 val intent = Intent(this, EmployeeCardScanActivity::class.java)
-                intent.putExtra(AppConfig.IS_FROM_ADD_FACE, true)
+                intent.putExtra(AppConfig.IS_FROM_ADD_FACE, false)
                 startActivity(intent)
             } else {
                 Log.d(TAG, "onRequestPermissionsResult: Camera Permission Denied")

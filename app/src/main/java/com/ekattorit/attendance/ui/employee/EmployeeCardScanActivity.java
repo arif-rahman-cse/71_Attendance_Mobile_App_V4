@@ -176,11 +176,6 @@ public class EmployeeCardScanActivity extends AppCompatActivity {
 
                 } else if (response.code() == 404) {
                     Log.d(TAG, "onResponse: Code: " + response.code());
-                    try {
-                        Log.d(TAG, "onResponse: Error: " + response.errorBody().string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                     Gson gson = new GsonBuilder().create();
                     RpError loginError;
                     try {
