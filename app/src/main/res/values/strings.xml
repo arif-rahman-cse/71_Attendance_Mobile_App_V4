@@ -94,6 +94,8 @@
     <string name="match_percent">match percent</string>
     <string name="face_default_value">"{}"</string>
     <string name="separator">: </string>
+    <string name="attendance_success">আজকের দিনের হাজিরা সফল হয়েছে</string>
+    <string name="distance_warning"> সফল ভাবে হাজিরা দিতে ক্যামেরা এবং ফেইসের মধ্যে দূরত্ব ২ মিটার হতে হবে ।</string>
 
 
     <string name="version_code">Version: v2.4.5</string>

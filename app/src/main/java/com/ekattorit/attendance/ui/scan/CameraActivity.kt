@@ -1,9 +1,12 @@
 package com.ekattorit.attendance.ui.scan
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
+import android.hardware.Camera
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -14,6 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import com.ekattorit.attendance.*
 import com.ekattorit.attendance.databinding.ActivityCameraBinding
@@ -22,6 +26,12 @@ import com.ekattorit.attendance.ui.MainActivity
 import com.ekattorit.attendance.ui.scan.model.RpNewScan2
 import com.ekattorit.attendance.utils.AppConfig.*
 import com.ekattorit.attendance.utils.UserCredentialPreference
+import com.google.android.gms.vision.CameraSource
+import com.google.android.gms.vision.Detector
+import com.google.android.gms.vision.Tracker
+import com.google.android.gms.vision.face.Face
+import com.google.android.gms.vision.face.FaceDetector
+import com.google.android.gms.vision.face.LargestFaceFocusingProcessor
 import com.google.android.material.snackbar.Snackbar
 import com.ttv.face.FaceEngine
 import com.ttv.face.FaceFeature
@@ -30,7 +40,6 @@ import com.ttv.face.SearchResult
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.parameter.Resolution
 import io.fotoapparat.preview.Frame
-import io.fotoapparat.selector.back
 import io.fotoapparat.selector.front
 import io.fotoapparat.util.FrameProcessor
 import io.fotoapparat.view.CameraView
@@ -66,6 +75,24 @@ class CameraActivity : AppCompatActivity() {
     private var longitude: Double = 0.0
 
 
+    //Calculate face distance from camera
+    var context: Context? = null
+    var F:Float = 1f //focal length
+    var sensorX:Float = 0f
+    var sensorY:Float = 0f
+    var angleX:Float = 0f
+    var angleY:Float = 0f
+    val IMAGE_WIDTH:Int = 1024
+    val IMAGE_HEIGHT:Int = 1024
+    val RIGHT_EYE:Int = 0
+    val LEFT_EYE:Int = 1
+    val AVERAGE_EYE_DISTANCE:Int = 63 // in mm
+
+    private lateinit var cameraSource: CameraSource
+    private var isValidDistance:Boolean = false
+
+
+
     private val mHandler: Handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             val i: Int = msg.what
@@ -98,14 +125,18 @@ class CameraActivity : AppCompatActivity() {
 //                setResult(RESULT_OK, intent)
 //                finish()
                 if (verifyResult == 1) {
-                    binding.animationView.visibility = View.VISIBLE
+                    //binding.animationView.visibility = View.VISIBLE
                     binding.status.text = "Face Match"
                     binding.status.setTextColor(Color.GREEN)
-                    insertAttendance(recogEmployeeId)
+                    //Calculate the distance of face
+                    //binding.messageView.visibility = View.VISIBLE
+                    frontFotoapparat!!.stop()
+                    //Toast.makeText(applicationContext, "Detection has stopped!", Toast.LENGTH_SHORT).show()
+                    calculateFaceDistance()
 
 
                 } else {
-                    binding.animationView.visibility = View.GONE
+                    //binding.animationView.visibility = View.GONE
                     binding.status.text = "Face Match Failed"
                     binding.status.setTextColor(Color.RED)
 
@@ -177,6 +208,7 @@ class CameraActivity : AppCompatActivity() {
 
             }
         bar.show()
+        frontFotoapparat!!.start()
     }
 
 
@@ -207,10 +239,16 @@ class CameraActivity : AppCompatActivity() {
 
         frontFotoapparat = Fotoapparat.with(this)
             .into(cameraView!!)
-            .lensPosition(back())
+            .lensPosition(front())
             .frameProcessor(SampleFrameProcessor())
             .previewResolution { Resolution(1280, 720) }
             .build()
+
+        binding.btnClose.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            finish()
+            startActivity(intent)
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -387,4 +425,129 @@ class CameraActivity : AppCompatActivity() {
         finish()
         startActivity(intent)
     }
+
+
+    private fun calculateFaceDistance() {
+        Log.d(TAG, "calculateFaceDistance: Called")
+        val camera: Camera = frontCam()
+        val campar = camera.parameters
+        F = campar.focalLength
+        angleX = campar.horizontalViewAngle
+        angleY = campar.verticalViewAngle
+        sensorX = (kotlin.math.tan(Math.toRadians((angleX / 2).toDouble())) * 2 * F).toFloat()
+        sensorY = (kotlin.math.tan(Math.toRadians((angleY / 2).toDouble())) * 2 * F).toFloat()
+        camera.stopPreview()
+        camera.release()
+        Log.d(TAG,
+            "calculateFaceDistance: F: $F angleX$angleX angleY$angleY sensorX$sensorX sensorY$sensorY"
+        )
+        //textView = findViewById(R.id.text)
+        createCameraSource()
+
+    }
+
+    private fun frontCam(): Camera {
+        var cameraCount = 0
+        var cam: Camera? = null
+        val cameraInfo = Camera.CameraInfo()
+        cameraCount = Camera.getNumberOfCameras()
+        for (camIdx in 0 until cameraCount) {
+            Camera.getCameraInfo(camIdx, cameraInfo)
+            Log.v("CAMID", camIdx.toString() + "")
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                try {
+                    cam = Camera.open(camIdx)
+                } catch (e: RuntimeException) {
+                    Log.e("FAIL", "Camera failed to open: " + e.localizedMessage)
+                }
+            }
+        }
+        Log.d(TAG, "frontCam: "+cam)
+        return cam!!
+    }
+
+    private fun createCameraSource() {
+        Log.d(TAG, "createCameraSource: Called")
+        val detector = FaceDetector.Builder(this)
+            .setTrackingEnabled(true)
+            .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
+            .setLandmarkType(FaceDetector.ALL_LANDMARKS)
+            .setMode(FaceDetector.FAST_MODE)
+            .build()
+        detector.setProcessor(LargestFaceFocusingProcessor(detector, FaceTracker()))
+        cameraSource = CameraSource.Builder(this, detector)
+            .setFacing(CameraSource.CAMERA_FACING_FRONT)
+            .setRequestedFps(30.0f)
+            .build()
+        println(cameraSource.previewSize)
+        try {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.CAMERA
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return
+            }
+            cameraSource.start()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    inner class FaceTracker  constructor() :
+        Tracker<Face>() {
+        override fun onUpdate(detections: Detector.Detections<Face>, face: Face) {
+            Log.d(TAG, "onUpdate: Called")
+            val leftEyePos = face.landmarks[LEFT_EYE].position
+            val rightEyePos = face.landmarks[RIGHT_EYE].position
+            val deltaX = Math.abs(leftEyePos.x - rightEyePos.x)
+            val deltaY = Math.abs(leftEyePos.y - rightEyePos.y)
+            val distance: Float
+            distance = if (deltaX >= deltaY) {
+                F * (AVERAGE_EYE_DISTANCE / sensorX) * (IMAGE_WIDTH / deltaX)
+            } else {
+                F * (AVERAGE_EYE_DISTANCE / sensorY) * (IMAGE_HEIGHT / deltaY)
+            }
+
+            showStatus(distance)
+        }
+
+        override fun onMissing(detections: Detector.Detections<Face>) {
+            Log.d(TAG, "onMissing: Called")
+            super.onMissing(detections)
+            //showStatus("face not detected")
+        }
+
+        override fun onDone() {
+            super.onDone()
+        }
+    }
+
+    fun showStatus(distance: Float) {
+        runOnUiThread {
+            Log.d(TAG,
+                "showStatus: Distance: $distance"
+            )
+
+            if (distance > 700) {
+                insertAttendance(recogEmployeeId)
+
+
+            }else{
+                binding.messageView.visibility = View.VISIBLE
+                binding.tvInfo.text = getString(R.string.distance_warning)
+                cameraSource.stop()
+
+            }
+        }
+    }
+
+
 }

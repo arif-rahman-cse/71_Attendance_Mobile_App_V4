@@ -766,7 +766,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         try {
             val geocoder = Geocoder(this, Locale.getDefault())
             val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-            val addressSize = addresses.size
+            val addressSize = addresses!!.size
             if (addressSize > 0) {
                 val sb = StringBuilder()
                 addresses.forEachIndexed { index, item ->
@@ -806,7 +806,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-    fun onDeleteClick() {
+    private fun onDeleteClick() {
         val alertDialog = AlertDialog.Builder(this).create()
         alertDialog.setTitle(" ফেইস ডাউনলোড করুন !")
         alertDialog.setMessage("আপনি কি ফেস ডাউনলোড করার বিষয়ে নিশ্চিত? অনুগ্রহ করে স্থির ইন্টারনেট সংযোগ ব্যবহার করুন । ")
