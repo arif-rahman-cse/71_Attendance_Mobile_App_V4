@@ -119,7 +119,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<RpLogin> call, Response<RpLogin> response) {
 
-                //Log.d(TAG, "onResponse: " + response.code());
+                Log.d(TAG, "onResponse: " + response.code());
 
                 if (response.code() == 200 && response.isSuccessful()) {
 
@@ -132,13 +132,14 @@ public class LoginActivity extends AppCompatActivity {
 
                     userCredentialPreference.setProfileUrl(rpLogin.getProfile().getImage());
                     userCredentialPreference.setUserType(rpLogin.getProfile().getUsersType());
-                    userCredentialPreference.setSuperVisorLatitude(String.valueOf(rpLogin.getProfile().getSupervisorLatitude()));
-                    userCredentialPreference.setSuperVisorLongitude(String.valueOf(rpLogin.getProfile().getSupervisorLongitude()));
+                    userCredentialPreference.setSuperVisorLatitude(rpLogin.getProfile().getSupervisorLatitude());
+                    userCredentialPreference.setSuperVisorLongitude(rpLogin.getProfile().getSupervisorLongitude());
                     userCredentialPreference.setSuperVisorRange(rpLogin.getProfile().getRange());
                     userCredentialPreference.setSuperVisorWard(String.valueOf(rpLogin.getProfile().getSupervisorWard()));
                     userCredentialPreference.setIsFaceRemovePermission(rpLogin.getProfile().isFaceDeletePermission());
                     userCredentialPreference.setIsFaceAddPermission(rpLogin.getProfile().isFaceAddPermission());
                     userCredentialPreference.setAttendanceTimeDiff(rpLogin.getProfile().getAttendanceTimeDiff());
+                    userCredentialPreference.setUserToken("Token "+rpLogin.getToken());
 
                     binding.loginPb.setVisibility(View.GONE);
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -172,8 +173,10 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<RpLogin> call, Throwable t) {
+                Log.d(TAG, "onFailure: "+t.getMessage());
                 enableBtn();
-                tryLogin(phone, password);
+                showErrorLogin(t.getMessage());
+                //tryLogin(phone, password);
                 //showErrorLogin(t.getMessage());
             }
         });
@@ -184,7 +187,7 @@ public class LoginActivity extends AppCompatActivity {
     private void showErrorLogin(String error) {
         binding.loginPb.setVisibility(View.GONE);
         Snackbar snackbar = Snackbar
-                .make(binding.mainView, error, Snackbar.LENGTH_INDEFINITE)
+                .make(binding.mainView, " "+error, Snackbar.LENGTH_INDEFINITE)
                 .setAction("RETRY", view -> {
                     binding.loginPb.setVisibility(View.VISIBLE);
                     String phone = binding.etPhone.getText().toString();
@@ -194,49 +197,6 @@ public class LoginActivity extends AppCompatActivity {
                 });
 
         snackbar.show();
-    }
-
-    private void syncFace(int id) {
-
-        Call<RpUpFace> newScanCall = RetrofitClient
-                .getInstance()
-                .getApi()
-                .syncFace(id);
-
-        newScanCall.enqueue(new Callback<RpUpFace>() {
-            @Override
-            public void onResponse(Call<RpUpFace> call, Response<RpUpFace> response) {
-                Log.d(TAG, "onResponse: " + response.code());
-                if (response.code() == 200) {
-                    assert response.body() != null;
-                    if (response.body().getFaceEmbeddings() != null && !response.body().getFaceEmbeddings().isEmpty()) {
-                        employeeFacePreference.setEmpFace(response.body().getFaceEmbeddings());
-                    } else {
-                        employeeFacePreference.setEmpFace(getString(R.string.face_default_value));
-                    }
-                    userCredentialPreference.setIsSyncFace(true);
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    finish();
-                    startActivity(intent);
-
-                } else {
-                    try {
-                        Log.d(TAG, "onResponse: Error: " + response.errorBody().string());
-                        Toast.makeText(LoginActivity.this, " কিছু একটা সমস্যা হয়েছে " + response.errorBody().string(), Toast.LENGTH_SHORT).show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }
-
-            @Override
-            public void onFailure(Call<RpUpFace> call, Throwable t) {
-                Toast.makeText(LoginActivity.this, " কিছু একটা সমস্যা হয়েছে " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "onFailure: Error: " + t.getMessage());
-            }
-        });
     }
 
 

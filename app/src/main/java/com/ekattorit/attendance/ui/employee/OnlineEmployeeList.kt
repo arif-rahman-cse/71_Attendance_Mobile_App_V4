@@ -24,7 +24,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class OnlineEmployeeList : AppCompatActivity() {
+class OnlineEmployeeList : AppCompatActivity(), EmployeeListAdapter.OnOnlineEmployeeItemClickListener {
 
     companion object {
         private const val TAG = "OnlineEmployeeList"
@@ -80,7 +80,7 @@ class OnlineEmployeeList : AppCompatActivity() {
     }
 
     private fun getEmployee(userId: Int) {
-        val employees = RetrofitClient.getInstance().api.getEmployee(userId)
+        val employees = RetrofitClient.getInstance().api.getEmployee(userCredentialPreference!!.userToken, userId)
         employees.enqueue(object : Callback<ArrayList<RpEmpDetails>> {
             override fun onResponse(
                 call: Call<ArrayList<RpEmpDetails>>,
@@ -95,6 +95,7 @@ class OnlineEmployeeList : AppCompatActivity() {
                         binding.errorView.visibility = View.GONE
                         empDetailsList.addAll(response.body()!!)
                         employeeListAdapter!!.notifyDataSetChanged()
+                        binding.tvTotalEmp.text = response.body()!!.size.toString()
                     } else {
                         binding.errorView.visibility = View.VISIBLE
                     }
@@ -112,10 +113,28 @@ class OnlineEmployeeList : AppCompatActivity() {
         employeeListAdapter =
             EmployeeListAdapter(
                 this,
-                empDetailsList
+                empDetailsList,
+                this
             )
         binding.rvEmployeeList.adapter = employeeListAdapter
         binding.rvEmployeeList.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+    }
+
+    override fun onDeleteClick(empDetails: FaceEntity?, position: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun showErrorMsg() {
+        binding.errorView.visibility = View.VISIBLE
+        binding.errorView.text = getString(R.string.no_employee_found)
+    }
+
+    override fun hideErrorMsg() {
+        binding.errorView.visibility = View.GONE
     }
 }

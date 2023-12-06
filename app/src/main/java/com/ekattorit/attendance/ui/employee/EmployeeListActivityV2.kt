@@ -54,6 +54,7 @@ class EmployeeListActivityV2 : AppCompatActivity(), OfflineEmployeeListAdapter.O
         mydb = DBHelper(this)
         context = this
         mydb!!.getAllUsers()
+        binding.tvTotalEmp.text = userLists.size.toString()
         initRecyclerView()
 
 
@@ -79,7 +80,9 @@ class EmployeeListActivityV2 : AppCompatActivity(), OfflineEmployeeListAdapter.O
         })
 
 
-        binding.toolbar.backButton.setOnClickListener { onBackPressed() }
+        binding.toolbar.backButton.setOnClickListener {
+            onBackPressed()
+        }
 
         binding.addNewFaceBtn.setOnClickListener {
 
@@ -91,8 +94,8 @@ class EmployeeListActivityV2 : AppCompatActivity(), OfflineEmployeeListAdapter.O
 
                 val intent = Intent(this, EmployeeCardScanActivity::class.java)
                 intent.putExtra(AppConfig.IS_FROM_ADD_FACE, true)
-                finish()
                 startActivity(intent)
+                finish()
 
 
             } else {
@@ -199,6 +202,10 @@ class EmployeeListActivityV2 : AppCompatActivity(), OfflineEmployeeListAdapter.O
     override fun showErrorMsg() {
         binding.errorView.visibility = View.VISIBLE
         binding.errorView.text = getString(R.string.no_face_attached)
+    }
+
+    override fun hideErrorMsg() {
+        binding.errorView.visibility = View.GONE
     }
 
 

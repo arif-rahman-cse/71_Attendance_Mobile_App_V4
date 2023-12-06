@@ -90,12 +90,15 @@ public class OfflineEmployeeListAdapter extends RecyclerView.Adapter<OfflineEmpl
         notifyDataSetChanged();
         if (employeeList.size() == 0) {
             onItemClickListener.showErrorMsg();
+        }else {
+            onItemClickListener.hideErrorMsg();
         }
     }
 
     public  interface OnOfflineEmployeeItemClickListener{
         void onDeleteClick(FaceEntity empDetails, int position);
         void showErrorMsg();
+        void hideErrorMsg();
     }
 
 

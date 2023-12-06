@@ -16,7 +16,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
@@ -30,12 +29,9 @@ import com.ekattorit.attendance.ui.MainActivity.Companion.userLists
 import com.ekattorit.attendance.ui.employee.modle.RpNewFace
 import com.ekattorit.attendance.utils.AppConfig
 import com.ekattorit.attendance.utils.AppProgressBar
-import com.ekattorit.attendance.utils.ImageResizer
 import com.ekattorit.attendance.utils.UserCredentialPreference
 import com.google.android.material.snackbar.Snackbar
-import com.ttv.face.FaceEngine
-import com.ttv.face.FaceFeatureInfo
-import com.ttv.face.FaceResult
+import com.ttv.face.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -87,6 +83,12 @@ class AddEmployeeFace : AppCompatActivity() {
         binding!!.addNewFaceBtn.setOnClickListener {
             saveNewFace()
         }
+
+        binding!!.btnClose.setOnClickListener {
+            val intent = Intent(this, EmployeeListActivityV2::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 
     private fun saveNewFace() {
@@ -95,9 +97,40 @@ class AddEmployeeFace : AppCompatActivity() {
             val faceResults: MutableList<FaceResult> = FaceEngine.getInstance(this).detectFace(bitmap)
             //val detectResult: List<FaceResult> = FaceEngine.getInstance(this).extractFeature(bitmap, isRegister, faceResults)
             if (faceResults.count() == 1) {
+                var faceAlreadyExists = false
+                var idAlreadyExists = false
+                var username = ""
                 FaceEngine.getInstance(this).extractFeature(bitmap, true, faceResults)
                 //val result: SearchResult = FaceEngine.getInstance(this).searchFaceFeature(FaceFeature(faceResults[0].feature))
-                val cropRect = Utils.getBestRect(bitmap!!.width, bitmap!!.height, faceResults[0].rect)
+                if (userLists.isEmpty()) {
+                    for (user in userLists) {
+                        if (TextUtils.equals(user.employeeId, empId)) {
+                            idAlreadyExists = true
+                            break
+                        }
+                    }
+
+                } else {
+                    val result: SearchResult = FaceEngine.getInstance(context)
+                        .searchFaceFeature(FaceFeature(faceResults[0].feature))
+                    if (result.maxSimilar > 0.8f) {
+                        for (user in userLists) {
+                            if (user.user_id == result.faceFeatureInfo!!.searchId) {
+                                faceAlreadyExists = true
+                                username = user.userName
+                                break
+                            }
+                            if (TextUtils.equals(user.employeeId, empId)) {
+                                idAlreadyExists = true
+                                break
+                            }
+                        }
+                    }
+                }
+
+
+                val cropRect =
+                    Utils.getBestRect(bitmap!!.width, bitmap!!.height, faceResults[0].rect)
                 val headImg = Utils.crop(
                     bitmap,
                     cropRect.left,
@@ -107,24 +140,30 @@ class AddEmployeeFace : AppCompatActivity() {
                     120,
                     120
                 )
-                var exists = false
+                /*
                 for (user in userLists) {
                     if (TextUtils.equals(user.employeeId, empId)) {
-                        exists = true
+                        idAlreadyExists = true
                         break
                     }
                 }
 
-                if (exists) {
+                 */
+                if (faceAlreadyExists) {
+                    showMessageIdAlreadyRegister("ইতিমধ্যে $username এর ফেইস যুক্ত আছে ।")
+                } else if (idAlreadyExists) {
                     showMessageIdAlreadyRegister("ইতিমধ্যে এই কর্মীর আইডি যুক্ত আছে ।")
 
-                }
-//
-                else {
-
+                } else {
                     //findViewById<Button>(R.id.btnVerify).isEnabled = MainActivity.userLists.size > 0
-
-                    addNewFace(empId, empName, headImg, faceResults[0].feature, userCredentialPreference!!.userId)
+                    AppProgressBar.messageProgressFixed(context, "Face is Saving...")
+                    addNewFace(
+                        empId,
+                        empName,
+                        headImg,
+                        faceResults[0].feature,
+                        userCredentialPreference!!.userId
+                    )
                 }
 
 
@@ -143,7 +182,6 @@ class AddEmployeeFace : AppCompatActivity() {
     }
 
 
-
     private fun showMessage(msg: String) {
 
         val bar = Snackbar.make(binding!!.mainView, msg, Snackbar.LENGTH_INDEFINITE)
@@ -158,8 +196,8 @@ class AddEmployeeFace : AppCompatActivity() {
         val bar = Snackbar.make(binding!!.mainView, msg, Snackbar.LENGTH_INDEFINITE)
             .setAction("নতুন স্ক্যান করুন") {
                 val intent = Intent(this, EmployeeListActivityV2::class.java)
-                finish()
                 startActivity(intent)
+                finish()
             }
         bar.show()
     }
@@ -266,7 +304,10 @@ class AddEmployeeFace : AppCompatActivity() {
         //create a file to write bitmap data
         var file: File? = null
         return try {
-            file = File(Environment.getExternalStorageDirectory().toString() + File.separator + fileNameToSave)
+            file = File(
+                Environment.getExternalStorageDirectory()
+                    .toString() + File.separator + fileNameToSave
+            )
             file.createNewFile()
 
             //Convert bitmap to byte array
@@ -289,25 +330,33 @@ class AddEmployeeFace : AppCompatActivity() {
     private fun getBitmapFile(reduceBitmap: Bitmap?): File {
         val wrapper = ContextWrapper(context)
         var file = wrapper.getDir("Images", Context.MODE_PRIVATE)
-        file = File(file,"${UUID.randomUUID()}.jpg")
+        file = File(file, "${UUID.randomUUID()}.jpg")
         val stream: OutputStream = FileOutputStream(file)
-        reduceBitmap!!.compress(Bitmap.CompressFormat.JPEG,25,stream)
+        reduceBitmap!!.compress(Bitmap.CompressFormat.JPEG, 25, stream)
         stream.flush()
         stream.close()
         return file
     }
 
 
-    private fun addNewFace(empId: String?, empName: String?, face:Bitmap, feature: ByteArray, supervisorId : Int) {
+    private fun addNewFace(
+        empId: String?,
+        empName: String?,
+        face: Bitmap,
+        feature: ByteArray,
+        supervisorId: Int
+    ) {
         val byteArrayOutputStream = ByteArrayOutputStream()
         face.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
 
         // image as file
-        val requestBody = photoFileCompress!!.asRequestBody("multipart/form-data".toMediaTypeOrNull())
-        val facePart = MultipartBody.Part.createFormData("face", photoFileCompress!!.name, requestBody)
+        val requestBody =
+            photoFileCompress!!.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val facePart =
+            MultipartBody.Part.createFormData("face", photoFileCompress!!.name, requestBody)
 
 
-        val addNewFaceCall = RetrofitClient.getInstance().api.addNewFace(empId, empName,supervisorId, facePart)
+        val addNewFaceCall = RetrofitClient.getInstance().api.addNewFace(userCredentialPreference!!.userToken,empId, empName, supervisorId, facePart)
         addNewFaceCall.enqueue(object : Callback<RpNewFace?> {
             override fun onResponse(
                 call: Call<RpNewFace?>,
@@ -316,26 +365,33 @@ class AddEmployeeFace : AppCompatActivity() {
                 Log.d(TAG, "addNewFace: Code: " + response.code())
                 if (response.code() == 201 && response.isSuccessful) {
                     val faceResponse = response.body()!!
-                    Log.d(TAG, "onResponse: Response: "+faceResponse.empName)
-                    Toast.makeText(context,  " নতুন ফেইস নিবন্ধন সফল হয়েছে !", Toast.LENGTH_SHORT).show()
+                    Log.d(TAG, "onResponse: Response: " + faceResponse.empName)
+                    Toast.makeText(context, " নতুন ফেইস নিবন্ধন সফল হয়েছে !", Toast.LENGTH_SHORT)
+                        .show()
 
                     val user_id = mydb!!.insertUser(empName, empId, face, feature)
                     val _face = FaceEntity(user_id, empName, empId, face, feature)
                     userLists.add(_face)
                     val faceFeatureInfo = FaceFeatureInfo(user_id, feature)
                     FaceEngine.getInstance(context).registerFaceFeature(faceFeatureInfo)
+                    AppProgressBar.hideMessageProgress()
                     val intent = Intent(context, EmployeeListActivityV2::class.java)
                     finish()
                     startActivity(intent)
 
 
+                } else if (response.code() == 400) {
+                    AppProgressBar.hideMessageProgress()
+                    AppProgressBar.userAttentionPb(
+                        context,
+                        "এই কর্মীর ফেইসটি ইতিমধ্যে যুক্ত আছে । অনুগ্রহ করে ফেইস সিঙ্ক করুন।"
+                    )
 
-                } else if(response.code() == 400){
-                    AppProgressBar.userAttentionPb(context, "এই কর্মীর ফেইসটি ইতিমধ্যে যুক্ত আছে । অনুগ্রহ করে ফেইস সিঙ্ক করুন।")
-
-                }else{
+                } else {
+                    AppProgressBar.hideMessageProgress()
                     try {
-                        Toast.makeText(context, response.errorBody()!!.string(), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, response.errorBody()!!.string(), Toast.LENGTH_SHORT)
+                            .show()
                         Log.d(TAG, "addNewFace: Error: " + response.errorBody()!!.string())
                     } catch (e: IOException) {
                         // handle failure at error parse
@@ -344,6 +400,7 @@ class AddEmployeeFace : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<RpNewFace?>, t: Throwable) {
+                AppProgressBar.hideMessageProgress()
                 Log.d(TAG, "addNewFace: Error")
                 Log.e(TAG, "addNewFace: " + t.message)
                 Toast.makeText(context, t.message, Toast.LENGTH_SHORT).show()
@@ -355,5 +412,12 @@ class AddEmployeeFace : AppCompatActivity() {
     companion object {
         private const val CAPTURE_IMAGE_REQUEST = 1
         private const val TAG = "AddEmployeeFace"
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, EmployeeListActivityV2::class.java)
+        startActivity(intent)
+        finish()
     }
 }

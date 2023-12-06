@@ -148,7 +148,7 @@ public class DailyAttendanceStatus extends AppCompatActivity {
         Call<List<RpAttendance>> rpAttendance = RetrofitClient
                 .getInstance()
                 .getApi()
-                .getPerDayAttendance(startDate, userCredentialPreference.getUserId());
+                .getPerDayAttendance(userCredentialPreference.getUserToken(),startDate, userCredentialPreference.getUserId());
 
 
         rpAttendance.enqueue(new Callback<List<RpAttendance>>() {

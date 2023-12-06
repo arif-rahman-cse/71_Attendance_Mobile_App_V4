@@ -22,6 +22,16 @@ public class RpLogin{
 	@SerializedName("is_active")
 	private boolean isActive;
 
+	@SerializedName("token")
+	private String token;
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public String getToken() {
+		return token;
+	}
 
 	@SerializedName("profile")
 	private Profile profile;
