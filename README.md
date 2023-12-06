@@ -5,9 +5,13 @@
 The Face Recognition Attendance System for Day Laborers offers a comprehensive solution for managing attendance and productivity, specifically catering to day laborers, especially those in the waste disposal industry.
 
 ## Screenshot
-Web App            |Mobile App| 
-:-------------------------:|:-------------------------:
-![System Screenshot 1](71_attendence_dashboard.gif)  | ![System Screenshot 1](71_attendence_gif.gif)
+Web App|
+:-------------------------:
+![System Screenshot 1](71_attendence_dashboard.gif)
+
+Mobile App|
+:-------------------------:
+![System Screenshot 1](71_attendence_gif.gif)
 
 
 
